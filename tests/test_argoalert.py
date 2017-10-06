@@ -37,4 +37,39 @@ def test_endpoint_metric_event():
     alerta_str = json.dumps(alerta_json)
     assert(alerta_str == exp_str)
 
+# Test gocdb xml to contacts json transformation
+def test_gocdb_to_contacts():
+
+    xmlfn = "./tests/files/gocdb-foo.xml"
+    jsonfn = "./tests/files/contacts.json"
+
+
+    with open(jsonfn,'r') as jsonfile:
+        jsondata = jsonfile.read().replace('\n', '')
+        expJson = json.loads(jsondata)
+
+        with open(xmlfn, 'r') as xmlfile:
+            xmldata = xmlfile.read().replace('\n', '')
+            contacts = argoalert.gocdb_to_contacts(xmldata)
+            assert (contacts == expJson)
+
+# Test contacts to alerta transformation
+def test_contacts_to_alerta():
+
+    cfn = "./tests/files/contacts.json"
+    rfn = "./tests/files/rules.json"
+
+
+    with open(rfn,'r') as ruleJson:
+        ruleData = ruleJson.read().replace('\n', '')
+        expJson = json.loads(ruleData)
+
+        with open(cfn, 'r') as contactJson:
+            contactData = contactJson.read().replace('\n', '')
+            contacts = json.loads(contactData)
+            rules = argoalert.contacts_to_alerta(contacts)
+            rulesOut = json.dumps(rules,sort_keys=True)
+            expOut = json.dumps(expJson,sort_keys=True)
+            assert(rulesOut == expOut)
+
 

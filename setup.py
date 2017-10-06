@@ -19,7 +19,7 @@ dependency_links = [x.strip().replace('git+', '') for x in all_reqs if x.startsw
 
 setup(
     name='argoalert',
-    scripts=['bin/argo-alert'],
+    scripts=['bin/argo-alert-publisher','bin/argo-alert-rulegen'],
     version=__version__,
     description='Publisher of argo-streaming status events as alerts to an alerta service endpoint',
     long_description=long_description,
