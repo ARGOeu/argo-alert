@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<results>
+  <SITE ID="0" PRIMARY_KEY="0G0" NAME="Site-A">
+    <PRIMARY_KEY>0G0</PRIMARY_KEY>
+    <SHORT_NAME>Site-A</SHORT_NAME>
+    <OFFICIAL_NAME>Site-A full name</OFFICIAL_NAME>
+    <HOME_URL>http://site-a.foo</HOME_URL>
+    <CONTACT_EMAIL>admin@site-a.email.foo</CONTACT_EMAIL>
+  </SITE>
+  <SITE ID="1" PRIMARY_KEY="0G1" NAME="Site-B">
+    <PRIMARY_KEY>0G1</PRIMARY_KEY>
+    <SHORT_NAME>Site-B</SHORT_NAME>
+    <OFFICIAL_NAME>Site-B full name</OFFICIAL_NAME>
+    <HOME_URL>http://site-b.foo</HOME_URL>
+    <CONTACT_EMAIL>admin@site-b.email.foo</CONTACT_EMAIL>
+  </SITE>
+  <SITE ID="2" PRIMARY_KEY="0G2" NAME="Site-C">
+    <PRIMARY_KEY>0G2</PRIMARY_KEY>
+    <SHORT_NAME>Site-C</SHORT_NAME>
+    <OFFICIAL_NAME>Site-C full name</OFFICIAL_NAME>
+    <HOME_URL>http://site-C.foo</HOME_URL>
+    <CONTACT_EMAIL>admin@site-c.email.foo</CONTACT_EMAIL>
+  </SITE>
+  <SITE ID="3" PRIMARY_KEY="0G3" NAME="Site-D">
+    <PRIMARY_KEY>0G3</PRIMARY_KEY>
+    <SHORT_NAME>Site-D</SHORT_NAME>
+    <OFFICIAL_NAME>Site-D full name</OFFICIAL_NAME>
+    <HOME_URL>http://site-d.foo</HOME_URL>
+    <CONTACT_EMAIL>admin@site-d.email.foo</CONTACT_EMAIL>
+  </SITE>
+  <SITE ID="4" PRIMARY_KEY="0G4" NAME="Site-E">
+    <PRIMARY_KEY>0G4</PRIMARY_KEY>
+    <SHORT_NAME>Site-E</SHORT_NAME>
+    <OFFICIAL_NAME>Site-E full name</OFFICIAL_NAME>
+    <HOME_URL>http://site-e.foo</HOME_URL>
+    <CONTACT_EMAIL>admin@site-e.email.foo</CONTACT_EMAIL>
+  </SITE>
+  <SITE ID="5" PRIMARY_KEY="0G5" NAME="Site-F">
+    <PRIMARY_KEY>0G5</PRIMARY_KEY>
+    <SHORT_NAME>Site-F</SHORT_NAME>
+    <OFFICIAL_NAME>Site-F full name</OFFICIAL_NAME>
+    <HOME_URL>http://site-f.foo</HOME_URL>
+    <CONTACT_EMAIL>admin@site-f.email.foo</CONTACT_EMAIL>
+  </SITE>
+</results>

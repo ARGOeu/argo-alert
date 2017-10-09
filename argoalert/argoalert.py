@@ -2,6 +2,7 @@ from kafka import KafkaConsumer
 import json
 import requests
 import logging
+from xml.dom import minidom
 
 
 def transform(argo_event, environment):
@@ -79,7 +80,7 @@ def read_and_send(message, environment, alerta_url, alerta_token):
         logging.warning(r.text)
 
 
-def start_listening(environment, log_level, kafka_endpoint, kafka_topic,
+def start_listening(environment, kafka_endpoint, kafka_topic,
                     alerta_endpoint, alerta_token):
     """Start listening to a kafka topic and send alerts to an alerta endpoint
 
@@ -92,7 +93,7 @@ def start_listening(environment, log_level, kafka_endpoint, kafka_topic,
         alerta_token: str. Alerta api access token
 
     """
-    logging.basicConfig(level=log_level)
+
 
     # Initialize kafka
     consumer = KafkaConsumer(kafka_topic,
@@ -100,3 +101,90 @@ def start_listening(environment, log_level, kafka_endpoint, kafka_topic,
                              bootstrap_servers=[kafka_endpoint])
     for message in consumer:
         read_and_send(message, environment, alerta_endpoint, alerta_token)
+
+def gocdb_to_contacts(gocdb_xml):
+    """Transform gocdb xml schema info on generic contacts json information
+
+    Args:
+        gocdb_xml: str. Data in gocdb xml format
+
+    Return:
+        obj: Json representation of contact information
+    """
+    xmldoc = minidom.parseString(gocdb_xml)
+    contacts = []
+    clist = xmldoc.getElementsByTagName("CONTACT_EMAIL")
+    for item in clist:
+        c = {}
+        c["type"] = item.parentNode.tagName
+        c["name"] = item.parentNode.getAttribute("NAME")
+        c["email"] = item.firstChild.nodeValue
+        contacts.append(c)
+
+    logging.info("Extracted " + str(len(clist)) + " contacts from gocdb xml")
+    return contacts
+
+
+def contacts_to_alerta(contacts):
+    """Transform a contacts json object to alerta's rule json object
+
+    Args:
+        contacts: obj. Json representation of contact information
+
+    Return:
+        obj: Json representation of alerta mailer rules
+    """
+    rules = []
+    for c in contacts:
+
+        rule_name = "rule_" + c["name"]
+        rule_fields = [ {u"field": u"resource", u"regex": c["name"]} ]
+        rule_contacts = [ c["email"] ]
+        rule_exlude = True
+        rule = {u"name":rule_name,u"fields":rule_fields,u"contacts":rule_contacts,u"exclude":rule_exlude}
+        rules.append(rule)
+
+    logging.info("Generated " + str(len(rules)) + " alerta rules from contact information")
+    return rules
+
+
+def get_gocdb(api_url,ca_bundle,hostcert,hostkey,verify):
+    """Http Rest call to gocdb-api to get xml contact information
+
+    Args:
+        url: str. Gocdb url call
+        ca_bundle: str. CA bundle file
+        cert: str. Host certificate file
+        key: str. Host key file
+
+    Return:
+        str: gocdb-api xml response
+    """
+
+    verf = False
+    if verify==True:
+        verf = ca_bundle
+
+    logging.info("Requesting data from gocdb api: " + api_url)
+    r = requests.get(api_url,cert=(hostcert,hostkey),verify=verf)
+
+    if r.status_code == 200:
+        logging.info("Gocdb data retrieval succesfull")
+        return r.text.encode('utf-8').strip()
+
+
+    return ""
+
+def write_rules(rules,outfile):
+    """Writes alerta email rules to a specific output file
+
+    Args:
+        riles: obj. json representation of alerta rules
+        outfile: str. output filename path
+    """
+
+    jsonStr = json.dumps(rules,indent=4)
+    logging.info("Saving rule to file: " + outfile)
+    with open(outfile, "w") as output_file:
+        output_file.write(jsonStr)
+

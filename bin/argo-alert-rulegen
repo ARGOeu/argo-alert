@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+from argparse import ArgumentParser
+from ConfigParser import SafeConfigParser
+import sys
+import logging
+from argoalert import argoalert
+
+def main(args=None):
+
+    # Init configuration
+    parser = SafeConfigParser()
+    parser.read(args.config)
+
+    gocdb_api = parser.get("gocdb", "api")
+    ca_bundle = parser.get("gocdb", "cabundle")
+    hostcert = parser.get("gocdb", "hostcert")
+    hostkey = parser.get("gocdb", "hostkey")
+    verify = parser.get("gocdb", "verify")
+
+    rule_file = parser.get("alerta", "mail-rules")
+    log_level = parser.get("logging", "level")
+    logging.basicConfig(level=log_level)
+
+    # Get data from gocdb
+    gocdb_xml = argoalert.get_gocdb(gocdb_api, ca_bundle, hostcert, hostkey,
+                                        verify)
+
+    # Convert gocdb xml data to contacts object
+    contacts = argoalert.gocdb_to_contacts(gocdb_xml)
+
+    # Convert contacts to alerta mail rules
+    rules = argoalert.contacts_to_alerta(contacts)
+
+    # Save rules to alerta mailer rule file
+    argoalert.write_rules(rules, rule_file)
+
+
+if __name__ == "__main__":
+
+    arg_parser = ArgumentParser(
+        description="create argo-alerta mail rules from gocdb contacts")
+    arg_parser.add_argument(
+        "-c", "--config", help="config", dest="config", metavar="string",
+        required="TRUE")
+
+    # Parse the command line arguments accordingly and introduce them to
+    # main...
+    sys.exit(main(arg_parser.parse_args()))

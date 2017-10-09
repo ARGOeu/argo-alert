@@ -1,0 +1,33 @@
+[
+    {
+      "type":"SITE",
+      "name":"Site-A",
+      "email":"admin@site-a.email.foo"
+    },
+    {
+      "type":"SITE",
+      "name":"Site-B",
+      "email":"admin@site-b.email.foo"
+    },
+    {
+      "type":"SITE",
+      "name":"Site-C",
+      "email":"admin@site-c.email.foo"
+    },
+    {
+      "type":"SITE",
+      "name":"Site-D",
+      "email":"admin@site-d.email.foo"
+    },
+    {
+      "type":"SITE",
+      "name":"Site-E",
+      "email":"admin@site-e.email.foo"
+    },
+    {
+      "type":"SITE",
+      "name":"Site-F",
+      "email":"admin@site-f.email.foo"
+    }
+]
+
