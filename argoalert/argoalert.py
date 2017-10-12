@@ -15,11 +15,11 @@ def transform(argo_event, environment):
     Return:
         obj: Json representation of an alerta alert
     """
-    status = argo_event["status"]
+    status = argo_event["status"].lower()
     hostname = argo_event["hostname"]
     metric = argo_event["metric"]
     summary = argo_event["summary"]
-    group = argo_event["group"]
+    group = argo_event["endpoint_group"]
     etype = argo_event["type"]
     service = argo_event["service"]
 
