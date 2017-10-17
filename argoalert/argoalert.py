@@ -18,7 +18,6 @@ def transform(argo_event, environment):
     status = argo_event["status"].lower()
     hostname = argo_event["hostname"]
     metric = argo_event["metric"]
-    summary = argo_event["summary"]
     group = argo_event["endpoint_group"]
     etype = argo_event["type"]
     service = argo_event["service"]
@@ -42,7 +41,7 @@ def transform(argo_event, environment):
         resource = group + "/" + service + "/" + hostname + "/" + metric
     # prepare alerta json
     alerta = {"environment": environment, "event": event, "resource": resource,
-              "service": alerta_service, "text": summary, "severity": status}
+              "service": alerta_service, "severity": status}
 
     return alerta
 
