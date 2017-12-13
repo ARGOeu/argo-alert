@@ -6,6 +6,7 @@ import sys
 from argoalert import argoalert
 import logging
 
+
 def main(args=None):
 
     # Init configuration
@@ -20,8 +21,7 @@ def main(args=None):
     log_level = parser.get("logging", "level")
     logging.basicConfig(level=log_level)
 
-    argoalert.start_listening(environment, kafka_endpoint, kafka_topic,
-                    alerta_endpoint, alerta_token)
+    argoalert.start_listening(environment, kafka_endpoint, kafka_topic, alerta_endpoint, alerta_token)
 
 
 if __name__ == "__main__":

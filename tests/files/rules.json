@@ -16,14 +16,6 @@
         "exclude":true
     },
     {
-        "name": "rule_Site-C",
-        "fields": [
-            {"field": "resource", "regex": "Site-C"}
-        ],
-        "contacts": ["admin@site-c.email.foo"],
-        "exclude":true
-    },
-    {
         "name": "rule_Site-D",
         "fields": [
             {"field": "resource", "regex": "Site-D"}
@@ -32,14 +24,6 @@
         "exclude":true
     },
     {
-      "name": "rule_Site-E",
-      "fields": [
-          {"field": "resource", "regex": "Site-E"}
-      ],
-        "contacts": ["admin@site-e.email.foo"],
-        "exclude":true
-    },
-      {
         "name": "rule_Site-F",
         "fields": [
             {"field": "resource", "regex": "Site-F"}
