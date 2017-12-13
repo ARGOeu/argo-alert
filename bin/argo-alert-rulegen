@@ -6,6 +6,7 @@ import sys
 import logging
 from argoalert import argoalert
 
+
 def main(args=None):
 
     # Init configuration
@@ -22,12 +23,22 @@ def main(args=None):
     log_level = parser.get("logging", "level")
     logging.basicConfig(level=log_level)
 
-    # Get data from gocdb
-    gocdb_xml = argoalert.get_gocdb(gocdb_api, ca_bundle, hostcert, hostkey,
-                                        verify)
+    # Get site data from gocdb
+    site_url = gocdb_api + "/gocdbpi/public/?method=get_site"
+    gocdb_site_xml = argoalert.get_gocdb(site_url, ca_bundle, hostcert, hostkey, verify)
 
-    # Convert gocdb xml data to contacts object
-    contacts = argoalert.gocdb_to_contacts(gocdb_xml)
+    # Convert site gocdb xml data to contacts object
+    site_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml)
+
+    # Get service endpoint data from gocdb
+    service_url = gocdb_api + "/gocdbpi/public/?method=get_service"
+    gocdb_service_xml = argoalert.get_gocdb(service_url, ca_bundle, hostcert, hostkey, verify)
+
+    # Convert site gocdb xml data to contacts object
+    service_contacts = argoalert.gocdb_to_contacts(gocdb_service_xml)
+
+    # merge site and service contacts
+    contacts = site_contacts + service_contacts
 
     # Convert contacts to alerta mail rules
     rules = argoalert.contacts_to_alerta(contacts)
