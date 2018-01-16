@@ -79,7 +79,7 @@ def read_and_send(message, environment, alerta_url, alerta_token):
         logging.warning(r.text)
 
 
-def start_listening(environment, kafka_endpoint, kafka_topic,
+def start_listening(environment, kafka_endpoints, kafka_topic,
                     alerta_endpoint, alerta_token):
     """Start listening to a kafka topic and send alerts to an alerta endpoint
 
@@ -93,9 +93,11 @@ def start_listening(environment, kafka_endpoint, kafka_topic,
     """
 
     # Initialize kafka
+    kafka_list = kafka_endpoints.split(',')
+
     consumer = KafkaConsumer(kafka_topic,
-                             group_id='argo-group',
-                             bootstrap_servers=[kafka_endpoint])
+                             group_id='argo-alerta',
+                             bootstrap_servers=kafka_list)
     for message in consumer:
         read_and_send(message, environment, alerta_endpoint, alerta_token)
 
