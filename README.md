@@ -7,7 +7,7 @@ author: GRNET
 Overview
 --------
 
-Publisher of argo-streaming status events as alerts to an alerta service endpoint.
+Streaming Publisher of argo-streaming status events as alerts to an alerta service endpoint.
 Alerta mail configuration rules from gocdb contact data.
 
 Argo streaming-service produces status events with the following schema:
@@ -33,10 +33,10 @@ Alerta-mailer rule generation
 ---------------------------
 Argo-alert provides the ability to create alerta-mailer rules from gocdb contact data. Argo-alert
 connects to a defined gocdb api endpoint and transforms the xml contact information to alerta-mailer
-rule json format. The rules are saved to a defined output file. 
+rule json format. The rules are saved to a defined output file.
 
 The configuration file for argo-alert provides a `[gocdb]` section to configure the gocdb endpoint
-and the required certificate parameters for access. The `mail-rules` parameter in `[alerta]` section 
+and the required certificate parameters for access. The `mail-rules` parameter in `[alerta]` section
 specifies the alerta-mailer rule filename for output.  
 
 
@@ -83,7 +83,7 @@ To run argo-alert publisher:
     $ argo-alert-publisher -c /path/to/argo-alert.conf
 
 To run argo-alert mail rule generator:
-    
+
     $ argo-alert-rulegen -c /path/to/argo-alert.conf
 
 Run tests
@@ -92,4 +92,3 @@ Run tests
 To run argo-alert tests:
 
     $ pytest
-
