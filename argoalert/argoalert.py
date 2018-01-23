@@ -2,7 +2,7 @@ from kafka import KafkaConsumer
 import json
 import requests
 import logging
-from xml.dom import minidom
+from defusedxml.minidom import parseString
 
 
 def transform(argo_event, environment):
@@ -85,7 +85,7 @@ def start_listening(environment, kafka_endpoints, kafka_topic,
 
     Args:
         environment: str. Alerta environment to be used (e.g. 'Devel')
-        kafka_endpoint: str. kafka broker endpoint
+        kafka_endpoints: str. kafka broker endpoint
         kafka_topic: str. kafka topic to listen t
         alerta_endpoint: str. Alerta api endpoint
         alerta_token: str. Alerta api access token
@@ -111,7 +111,7 @@ def gocdb_to_contacts(gocdb_xml):
     Return:
         obj: Json representation of contact information
     """
-    xmldoc = minidom.parseString(gocdb_xml)
+    xmldoc = parseString(gocdb_xml)
     contacts = []
     clist = xmldoc.getElementsByTagName("CONTACT_EMAIL")
     for item in clist:
