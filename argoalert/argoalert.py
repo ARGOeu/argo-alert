@@ -102,11 +102,12 @@ def start_listening(environment, kafka_endpoints, kafka_topic,
         read_and_send(message, environment, alerta_endpoint, alerta_token)
 
 
-def gocdb_to_contacts(gocdb_xml):
+def gocdb_to_contacts(gocdb_xml, use_notif_flag):
     """Transform gocdb xml schema info on generic contacts json information
 
     Args:
         gocdb_xml: str. Data in gocdb xml format
+        use_notif_flag: boolean. Examine or not notifications flag when gathering contacts
 
     Return:
         obj: Json representation of contact information
@@ -115,9 +116,13 @@ def gocdb_to_contacts(gocdb_xml):
     contacts = []
     clist = xmldoc.getElementsByTagName("CONTACT_EMAIL")
     for item in clist:
-        notify = item.parentNode.getElementsByTagName('NOTIFICATIONS')[0]
-        # if notification flag is set to false break
-        notify_val = notify.firstChild.nodeValue
+        # By default accept all contacts
+        notify_val = 'Y'
+        # If flag on accept only contacts with notification flag
+        if use_notif_flag:
+            notify = item.parentNode.getElementsByTagName('NOTIFICATIONS')[0]
+            # if notification flag is set to false break
+            notify_val = notify.firstChild.nodeValue
         if notify_val == 'TRUE' or notify_val == 'Y':
             c = dict()
             c["type"] = item.parentNode.tagName

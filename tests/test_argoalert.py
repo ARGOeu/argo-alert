@@ -45,26 +45,43 @@ class TestArgoAlertMethods(unittest.TestCase):
 
         self.assertEqual(alerta_str, exp_str)
 
+
+
+
     # Test gocdb xml to contacts json transformation
-    def test_gocdb_to_contacts(self):
+    def test_gocdb_to_contacts_notify_flag(self):
 
         xml_fn = "./tests/files/gocdb-foo.xml"
-        json_fn = "./tests/files/contacts.json"
+        notify_json_fn = "./tests/files/contacts_notify.json"
+        all_json_fn = "./tests/files/contacts_all.json"
 
-        with open(json_fn,'r') as json_file:
-            json_data = json_file.read().replace('\n', '')
-            exp_json = json.loads(json_data)
+        with open(xml_fn, 'r') as xml_file:
+            xml_data = xml_file.read().replace('\n', '')
 
-            with open(xml_fn, 'r') as xml_file:
-                xml_data = xml_file.read().replace('\n', '')
-                contacts = argoalert.gocdb_to_contacts(xml_data)
-                print contacts
+            # Select contacts using notification flag on
+            with open(notify_json_fn, 'r') as json_file:
+                json_data = json_file.read().replace('\n', '')
+                exp_json = json.loads(json_data)
+
+                use_notif_flag = True
+                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag)
+
+                self.assertEqual(contacts, exp_json)
+
+            # Select all contacts
+            with open(all_json_fn, 'r') as json_file:
+                json_data = json_file.read().replace('\n', '')
+                exp_json = json.loads(json_data)
+
+                use_notif_flag = False
+                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag)
+                print json.dumps(contacts)
                 self.assertEqual(contacts, exp_json)
 
     # Test contacts to alerta transformation
     def test_contacts_to_alerta(self):
 
-        cfn = "./tests/files/contacts.json"
+        cfn = "./tests/files/contacts_notify.json"
         rfn = "./tests/files/rules.json"
 
         with open(rfn, 'r') as ruleJson:

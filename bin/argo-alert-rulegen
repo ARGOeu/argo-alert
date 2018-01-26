@@ -18,7 +18,7 @@ def main(args=None):
     hostcert = parser.get("gocdb", "hostcert")
     hostkey = parser.get("gocdb", "hostkey")
     verify = parser.get("gocdb", "verify")
-
+    use_notif_flag = parser.getBoolean("gogdb", "use_notifications_flag")
     rule_file = parser.get("alerta", "mail-rules")
     log_level = parser.get("logging", "level")
     logging.basicConfig(level=log_level)
@@ -28,7 +28,7 @@ def main(args=None):
     gocdb_site_xml = argoalert.get_gocdb(site_url, ca_bundle, hostcert, hostkey, verify)
 
     # Convert site gocdb xml data to contacts object
-    site_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml)
+    site_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml, use_notif_flag)
 
     # Get service endpoint data from gocdb
     service_url = gocdb_api + "/gocdbpi/public/?method=get_service"
