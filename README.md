@@ -33,7 +33,10 @@ Alerta-mailer rule generation
 ---------------------------
 Argo-alert provides the ability to create alerta-mailer rules from gocdb contact data. Argo-alert
 connects to a defined gocdb api endpoint and transforms the xml contact information to alerta-mailer
-rule json format. The rules are saved to a defined output file.
+rule json format. The rules are saved to a defined output file. The parameter `use_notifications_flag`
+(by default set to `True`) is used to select only the gocdb contacts that contain
+`<NOTIFICATIONS>Y</NOTIFICATIONS>` xml element. If the gocdb instance doesn't support notifications flag
+please set `use_notifications_flag=False`. 
 
 The configuration file for argo-alert provides a `[gocdb]` section to configure the gocdb endpoint
 and the required certificate parameters for access. The `mail-rules` parameter in `[alerta]` section
@@ -62,6 +65,7 @@ cabundle=/home/kaggis/Desktop/certs/hellasgrid
 hostcert=/home/kaggis/Desktop/certs/file.crt.pem
 hostkey=/home/kaggis/Desktop/certs/file.key.pem
 verify=False
+use_notifications_flag=True
 
 [kafka]
 endpoint=localhost:9092
