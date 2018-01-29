@@ -69,9 +69,12 @@ def read_and_send(message, environment, alerta_url, alerta_token):
         return
 
     logging.info("Attempting to send alert:" + json.dumps(alerta))
-    headers = {'Authorization': 'Key ' + alerta_token}
+    headers = {'Authorization': 'Key ' + alerta_token,
+               'Content-Type': 'application/json'}
+
     r = requests.post(alerta_url + "/alert", headers=headers,
                       data=json.dumps(alerta))
+    
     if r.status_code == 201:
         logging.info("Alert send to alerta successfully")
     else:
