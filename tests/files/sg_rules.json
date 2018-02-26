@@ -1,0 +1,26 @@
+[
+    {
+        "name": "rule_SG_A",
+        "fields": [
+            {"field": "resource", "regex": "SG_A"}
+        ],
+        "contacts": ["sg_a@email.foo"],
+        "exclude":true
+    },
+    {
+        "name": "rule_SG_C",
+        "fields": [
+            {"field": "resource", "regex": "SG_C"}
+        ],
+        "contacts": ["sg_c@email.foo"],
+        "exclude":true
+    },
+    {
+        "name": "rule_SG_D",
+        "fields": [
+            {"field": "resource", "regex": "SG_D"}
+        ],
+        "contacts": ["sg_d@email.foo"],
+        "exclude":true
+    }
+]

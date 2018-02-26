@@ -1,0 +1,22 @@
+[
+  {
+    "type": "SERVICE_GROUP",
+    "name": "SG_A",
+    "email": "sg_a@email.foo"
+  },
+  {
+    "type": "SERVICE_GROUP",
+    "name": "SG_B",
+    "email": "sg_b@email.foo"
+  },
+  {
+    "type": "SERVICE_GROUP",
+    "name": "SG_C",
+    "email": "sg_c@email.foo"
+  },
+  {
+    "type": "SERVICE_GROUP",
+    "name": "SG_D",
+    "email": "sg_d@email.foo"
+  }
+]

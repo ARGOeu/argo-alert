@@ -60,24 +60,41 @@ Or clone the repo:
 argoalert requires a configuration file with the following options:
 ```
 [gocdb]
-api=https://goc.egi.eu/gocdbpi/public/?method=get_site
-cabundle=/home/kaggis/Desktop/certs/hellasgrid
-hostcert=/home/kaggis/Desktop/certs/file.crt.pem
-hostkey=/home/kaggis/Desktop/certs/file.key.pem
+# Path to godcb endpoint
+api=https://gocdb-url.example.foo
+# Path to ca bundle folder
+cabundle=/path/to/cabundle
+# Path to host certificate file
+hostcert=/path/to/hostcert
+# Path to host key file
+hostkey=/path/to/hostkey
+# Verify https requests
 verify=False
+# Examine notification flag when selecting contacts
 use_notifications_flag=True
+# request path for gocdb to retrieve top-level items
+top_request=/gocdbpi/public/?method=get_site
+# request path for gocdb to retrieve sub-level items
+sub_request=/gocdbpi/public/?method=get_service
 
 [kafka]
+# kafka endpoint
 endpoint=localhost:9092
+# kafka topic
 topic=metrics
 
 [alerta]
+# alerta service endpoint
 endpoint=http://localhost:8080
+# alerta enviroment
 environment=devel
+# alerta token
 token=s3cr3tt0ke3n
-mail-rules=/home/kaggis/alerta-rules-101
+# path to store the generated mail rules
+mail-rules=/home/root/alerta-rules-101
 
 [logging]
+# loggin level
 level = INFO
 
 ```

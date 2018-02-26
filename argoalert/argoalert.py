@@ -118,22 +118,35 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag):
     xmldoc = parseString(gocdb_xml)
     contacts = []
     clist = xmldoc.getElementsByTagName("CONTACT_EMAIL")
-    for item in clist:
+    for indx, item in enumerate(clist):
+
         # By default accept all contacts
         notify_val = 'Y'
         # If flag on accept only contacts with notification flag
         if use_notif_flag:
             notify = item.parentNode.getElementsByTagName('NOTIFICATIONS')[0]
-            # if notification flag is set to false break
+            # if notification flag is set to false skip
             notify_val = notify.firstChild.nodeValue
+
         if notify_val == 'TRUE' or notify_val == 'Y':
             c = dict()
             c["type"] = item.parentNode.tagName
-            c["name"] = item.parentNode.getAttribute("NAME")
+
+            # Check if name tag exists
+            name_tags = item.parentNode.getElementsByTagName("NAME")
+            # if not check short name tag
+            if len(name_tags) == 0:
+                name_tags = item.parentNode.getElementsByTagName("SHORT_NAME")
+
+            # if still no name related tag skip
+            if len(name_tags) == 0:
+                continue
+
+            c["name"] = name_tags[0].firstChild.nodeValue
             c["email"] = item.firstChild.nodeValue
+
             contacts.append(c)
 
-    logging.info("Extracted " + str(len(clist)) + " contacts from gocdb xml")
     return contacts
 
 
@@ -174,12 +187,12 @@ def get_gocdb(api_url, ca_bundle, hostcert, hostkey, verify):
         str: gocdb-api xml response
     """
 
-    verf = False
+    # If verify is true replace it with ca_bundle path
     if verify:
-        verf = ca_bundle
+        verify = ca_bundle
 
     logging.info("Requesting data from gocdb api: " + api_url)
-    r = requests.get(api_url, cert=(hostcert, hostkey), verify=verf)
+    r = requests.get(api_url, cert=(hostcert, hostkey), verify=verify)
 
     if r.status_code == 200:
         logging.info("Gocdb data retrieval successful")
