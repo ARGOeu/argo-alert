@@ -60,7 +60,7 @@ class TestArgoAlertMethods(unittest.TestCase):
                 exp_json = json.loads(json_data)
 
                 use_notif_flag = True
-                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag)
+                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, None)
 
                 self.assertEqual(contacts, exp_json)
 
@@ -70,7 +70,7 @@ class TestArgoAlertMethods(unittest.TestCase):
                 exp_json = json.loads(json_data)
 
                 use_notif_flag = False
-                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag)
+                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, None)
 
                 self.assertEqual(contacts, exp_json)
 
@@ -90,7 +90,7 @@ class TestArgoAlertMethods(unittest.TestCase):
                 exp_json = json.loads(json_data)
 
                 use_notif_flag = True
-                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag)
+                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, None)
 
                 self.assertEqual(contacts, exp_json)
 
@@ -100,7 +100,7 @@ class TestArgoAlertMethods(unittest.TestCase):
                 exp_json = json.loads(json_data)
 
                 use_notif_flag = False
-                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag)
+                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, None)
 
                 self.assertEqual(contacts, exp_json)
 
@@ -138,5 +138,47 @@ class TestArgoAlertMethods(unittest.TestCase):
                 rules_out = json.dumps(rules, sort_keys=True)
                 exp_out = json.dumps(exp_json, sort_keys=True)
                 self.assertEqual(rules_out, exp_out)
+
+    # Test gocdb xml with test emails to final rules
+    def test_site_gocdb_test_mails(self):
+        xml_fn = "./tests/files/site_gocdb.xml"
+        site_rules_fn = "./tests/files/site_rules_test_emails.json"
+
+        with open(xml_fn, 'r') as xml_file:
+            xml_data = xml_file.read().replace('\n', '')
+
+            # Select contacts using notification flag on
+            with open(site_rules_fn, 'r') as json_file:
+                json_data = json_file.read().replace('\n', '')
+                exp_json = json.loads(json_data)
+
+                use_notif_flag = True
+                test_emails = ["test1@email.foo", "test2@email.foo", "test3@email.foo"]
+                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, test_emails)
+
+                rules = argoalert.contacts_to_alerta(contacts)
+                print rules
+                self.assertEqual(exp_json, rules)
+
+    # Test gocdb xml with test emails to final rules
+    def test_sg_gocdb_test_mails(self):
+        xml_fn = "./tests/files/sg_gocdb.xml"
+        site_rules_fn = "./tests/files/sg_rules_test_emails.json"
+
+        with open(xml_fn, 'r') as xml_file:
+            xml_data = xml_file.read().replace('\n', '')
+
+            # Select contacts using notification flag on
+            with open(site_rules_fn, 'r') as json_file:
+                json_data = json_file.read().replace('\n', '')
+                exp_json = json.loads(json_data)
+
+                use_notif_flag = True
+                test_emails = ["test1@email.foo", "test2@email.foo"]
+                contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, test_emails)
+
+                rules = argoalert.contacts_to_alerta(contacts)
+                print rules
+                self.assertEqual(exp_json, rules)
 
 

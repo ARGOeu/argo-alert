@@ -106,6 +106,16 @@ To run argo-alert publisher:
 To run argo-alert mail rule generator:
 
     $ argo-alert-rulegen -c /path/to/argo-alert.conf
+    
+Using test-emails
+-----------------
+For testing purposes if you want to distribute notifications using a list
+of your own email aliases (before using client contact emails) issue:
+
+    $ argo-alert-rulegen -c /path/to/argo-alert.conf --test-emails test01@email.foo,test02@email.foo,test03@email.foo
+
+The rule list will be generated using the configured client sources but each client
+email will be replaced (using round-robin method) by a test-email (as defined in the cli arg list)
 
 Run tests
 ---------
