@@ -17,28 +17,31 @@ def main(args=None):
     ca_bundle = parser.get("gocdb", "cabundle")
     hostcert = parser.get("gocdb", "hostcert")
     hostkey = parser.get("gocdb", "hostkey")
-    verify = parser.get("gocdb", "verify")
-    use_notif_flag = parser.getBoolean("gogdb", "use_notifications_flag")
+    verify = parser.getboolean("gocdb", "verify")
+    use_notif_flag = parser.getboolean("gocdb", "use_notifications_flag")
     rule_file = parser.get("alerta", "mail-rules")
     log_level = parser.get("logging", "level")
+    top_req = parser.get("gocdb","top_request")
+    sub_req = parser.get("gocdb","sub_request")
+
     logging.basicConfig(level=log_level)
 
     # Get site data from gocdb
-    site_url = gocdb_api + "/gocdbpi/public/?method=get_site"
-    gocdb_site_xml = argoalert.get_gocdb(site_url, ca_bundle, hostcert, hostkey, verify)
+    top_url = gocdb_api + top_req
+    gocdb_site_xml = argoalert.get_gocdb(top_url, ca_bundle, hostcert, hostkey, verify)
 
-    # Convert site gocdb xml data to contacts object
-    site_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml, use_notif_flag)
+    # Convert top-level gocdb xml data to contacts object
+    top_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml, use_notif_flag)
 
-    # Get service endpoint data from gocdb
-    service_url = gocdb_api + "/gocdbpi/public/?method=get_service"
-    gocdb_service_xml = argoalert.get_gocdb(service_url, ca_bundle, hostcert, hostkey, verify)
+    # Get sub level contact data from gocdb
+    sub_url = gocdb_api + sub_req
+    gocdb_service_xml = argoalert.get_gocdb(sub_url, ca_bundle, hostcert, hostkey, verify)
 
-    # Convert site gocdb xml data to contacts object
-    service_contacts = argoalert.gocdb_to_contacts(gocdb_service_xml)
+    # Convert sub-level site gocdb xml data to contacts object
+    sub_contacts = argoalert.gocdb_to_contacts(gocdb_service_xml, use_notif_flag)
 
     # merge site and service contacts
-    contacts = site_contacts + service_contacts
+    contacts = top_contacts + sub_contacts
 
     # Convert contacts to alerta mail rules
     rules = argoalert.contacts_to_alerta(contacts)
