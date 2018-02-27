@@ -26,19 +26,23 @@ def main(args=None):
 
     logging.basicConfig(level=log_level)
 
+    test_emails = None
+    if args.test_emails is not None:
+        test_emails = args.test_emails.split(',')
+
     # Get site data from gocdb
     top_url = gocdb_api + top_req
     gocdb_site_xml = argoalert.get_gocdb(top_url, ca_bundle, hostcert, hostkey, verify)
 
     # Convert top-level gocdb xml data to contacts object
-    top_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml, use_notif_flag)
+    top_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml, use_notif_flag, test_emails)
 
     # Get sub level contact data from gocdb
     sub_url = gocdb_api + sub_req
     gocdb_service_xml = argoalert.get_gocdb(sub_url, ca_bundle, hostcert, hostkey, verify)
 
     # Convert sub-level site gocdb xml data to contacts object
-    sub_contacts = argoalert.gocdb_to_contacts(gocdb_service_xml, use_notif_flag)
+    sub_contacts = argoalert.gocdb_to_contacts(gocdb_service_xml, use_notif_flag, test_emails)
 
     # merge site and service contacts
     contacts = top_contacts + sub_contacts
@@ -57,6 +61,8 @@ if __name__ == "__main__":
     arg_parser.add_argument(
         "-c", "--config", help="config", dest="config", metavar="string",
         required="TRUE")
+    arg_parser.add_argument(
+        "-t", "--test-emails", help="test-emails", dest="test_emails", metavar="string")
 
     # Parse the command line arguments accordingly and introduce them to
     # main...

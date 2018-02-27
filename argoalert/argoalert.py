@@ -105,7 +105,7 @@ def start_listening(environment, kafka_endpoints, kafka_topic,
         read_and_send(message, environment, alerta_endpoint, alerta_token)
 
 
-def gocdb_to_contacts(gocdb_xml, use_notif_flag):
+def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
     """Transform gocdb xml schema info on generic contacts json information
 
     Args:
@@ -118,7 +118,9 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag):
     xmldoc = parseString(gocdb_xml)
     contacts = []
     clist = xmldoc.getElementsByTagName("CONTACT_EMAIL")
-    for indx, item in enumerate(clist):
+
+    indx = 0
+    for item in clist:
 
         # By default accept all contacts
         notify_val = 'Y'
@@ -143,7 +145,12 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag):
                 continue
 
             c["name"] = name_tags[0].firstChild.nodeValue
-            c["email"] = item.firstChild.nodeValue
+
+            if test_emails is None:
+                c["email"] = item.firstChild.nodeValue
+            else:
+                c["email"] = test_emails[indx % len(test_emails)]
+                indx = indx + 1
 
             contacts.append(c)
 

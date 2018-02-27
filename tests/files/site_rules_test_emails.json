@@ -1,0 +1,34 @@
+[
+    {
+        "name": "rule_Site-A",
+        "fields": [
+            {"field": "resource", "regex": "Site-A"}
+        ],
+        "contacts": ["test1@email.foo"],
+        "exclude":true
+    },
+    {
+        "name": "rule_Site-B",
+        "fields": [
+            {"field": "resource", "regex": "Site-B"}
+        ],
+        "contacts": ["test2@email.foo"],
+        "exclude":true
+    },
+    {
+        "name": "rule_Site-D",
+        "fields": [
+            {"field": "resource", "regex": "Site-D"}
+        ],
+        "contacts": ["test3@email.foo"],
+        "exclude":true
+    },
+    {
+        "name": "rule_Site-F",
+        "fields": [
+            {"field": "resource", "regex": "Site-F"}
+        ],
+        "contacts": ["test1@email.foo"],
+        "exclude":true
+    }
+]
