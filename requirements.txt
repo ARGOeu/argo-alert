@@ -1,0 +1,7 @@
+# Dev/Deployment
+nose
+coverage
+pypi-publisher
+kafka-python
+requests>=2.9.0
+defusedxml>=0.5

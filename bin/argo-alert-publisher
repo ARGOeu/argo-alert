@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+
+from argparse import ArgumentParser
+from ConfigParser import SafeConfigParser
+import sys
+from argoalert import argoalert
+import logging
+
+
+def main(args=None):
+
+    # Init configuration
+    parser = SafeConfigParser()
+    parser.read(args.config)
+
+    kafka_endpoint = parser.get("kafka", "endpoint")
+    kafka_topic = parser.get("kafka", "topic")
+    alerta_endpoint = parser.get("alerta", "endpoint")
+    environment = parser.get("alerta", "environment")
+    alerta_token = parser.get("alerta", "token")
+    log_level = parser.get("logging", "level")
+    logging.basicConfig(level=log_level)
+
+    argoalert.start_listening(environment, kafka_endpoint, kafka_topic, alerta_endpoint, alerta_token)
+
+
+if __name__ == "__main__":
+
+    arg_parser = ArgumentParser(
+        description="publish argo status events to alerta server")
+    arg_parser.add_argument(
+        "-c", "--config", help="config", dest="config", metavar="string",
+        required="TRUE")
+
+    # Parse the command line arguments accordingly and introduce them to
+    # main...
+    sys.exit(main(arg_parser.parse_args()))
