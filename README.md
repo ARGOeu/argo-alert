@@ -42,6 +42,10 @@ The configuration file for argo-alert provides a `[gocdb]` section to configure 
 and the required certificate parameters for access. The `mail-rules` parameter in `[alerta]` section
 specifies the alerta-mailer rule filename for output.  
 
+Access to gocdb api endpoint support http basic auth or certificate-based. In the case of
+http basic authenticaation (when in config `auth_method=basic` ) `username` and `password` parameters 
+should be set in config file. In the case of certificate-based auth (when in config `auth_method=cert` )
+`hostcert` and `hostkey` parameters should be set.  
 
 Installation / Usage
 --------------------
@@ -60,6 +64,12 @@ Or clone the repo:
 argoalert requires a configuration file with the following options:
 ```
 [gocdb]
+# auth_method to be used when contacting gocdb api: basic-auth or cert
+auth_method=cert
+# username for basic auth
+username=
+# password for basic auth
+password=
 # Path to godcb endpoint
 api=https://gocdb-url.example.foo
 # Path to ca bundle folder
@@ -96,6 +106,7 @@ mail-rules=/home/root/alerta-rules-101
 [logging]
 # loggin level
 level = INFO
+
 
 ```
 
