@@ -1,4 +1,10 @@
 [gocdb]
+# auth_method to be used when contacting gocdb api: basic-auth or cert
+auth_method=cert
+# username for basic auth
+username=
+# password for basic auth
+password=
 # Path to godcb endpoint
 api=https://gocdb-url.example.foo
 # Path to ca bundle folder

@@ -1,8 +1,10 @@
 from kafka import KafkaConsumer
+from requests.auth import HTTPBasicAuth
 import json
 import requests
 import logging
 from defusedxml.minidom import parseString
+
 
 
 def transform(argo_event, environment):
@@ -172,34 +174,36 @@ def contacts_to_alerta(contacts):
         rule_name = "rule_" + c["name"]
         rule_fields = [{u"field": u"resource", u"regex": c["name"]}]
         rule_contacts = [c["email"]]
-        rule_exlude = True
-        rule = {u"name": rule_name, u"fields": rule_fields, u"contacts": rule_contacts, u"exclude": rule_exlude}
+        rule_exclude = True
+        rule = {u"name": rule_name, u"fields": rule_fields, u"contacts": rule_contacts, u"exclude": rule_exclude}
         rules.append(rule)
 
     logging.info("Generated " + str(len(rules)) + " alerta rules from contact information")
     return rules
 
 
-def get_gocdb(api_url, ca_bundle, hostcert, hostkey, verify):
+def get_gocdb(api_url, auth_info, ca_bundle):
     """Http Rest call to gocdb-api to get xml contact information
 
     Args:
         api_url: str. Gocdb url call
+        auth_info: dict. Contains authorization information
         ca_bundle: str. CA bundle file
-        hostcert: str. Host certificate file
-        hostkey: str. Host key file
-        verify: str. path to a ca_bundle for verification - if available
+
 
     Return:
         str: gocdb-api xml response
     """
 
-    # If verify is true replace it with ca_bundle path
-    if verify:
+    verify = False
+    if ca_bundle is not None:
         verify = ca_bundle
 
     logging.info("Requesting data from gocdb api: " + api_url)
-    r = requests.get(api_url, cert=(hostcert, hostkey), verify=verify)
+    if auth_info["method"]=="cert":
+        r = requests.get(api_url, cert=(auth_info["cert"], auth_info["key"]), verify=verify)
+    else:
+        r = requests.get(api_url, auth=HTTPBasicAuth(auth_info["user"], auth_info["pass"]), verify=verify)
 
     if r.status_code == 200:
         logging.info("Gocdb data retrieval successful")
