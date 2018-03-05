@@ -13,16 +13,31 @@ def main(args=None):
     parser = SafeConfigParser()
     parser.read(args.config)
 
+    # Initialize authorization info object
+    auth_info = dict()
+
+    auth_method = parser.get("gocdb", "auth_method")
+    if auth_method == "cert":
+        auth_info["method"] = "cert"
+
+        auth_info["cert"] = parser.get("gocdb", "hostcert")
+        auth_info["key"] = parser.get("gocdb", "hostkey")
+    elif auth_method == "basic":
+        auth_info["method"] = "basic"
+        auth_info["user"] = parser.get("gocdb", "username")
+        auth_info["pass"] = parser.get("gocdb", "password")
+
     gocdb_api = parser.get("gocdb", "api")
-    ca_bundle = parser.get("gocdb", "cabundle")
-    hostcert = parser.get("gocdb", "hostcert")
-    hostkey = parser.get("gocdb", "hostkey")
     verify = parser.getboolean("gocdb", "verify")
+    ca_bundle = None
+    if verify:
+        ca_bundle = parser.get("gocdb", "cabundle")
     use_notif_flag = parser.getboolean("gocdb", "use_notifications_flag")
     rule_file = parser.get("alerta", "mail-rules")
     log_level = parser.get("logging", "level")
     top_req = parser.get("gocdb","top_request")
     sub_req = parser.get("gocdb","sub_request")
+
 
     logging.basicConfig(level=log_level)
 
@@ -32,14 +47,14 @@ def main(args=None):
 
     # Get site data from gocdb
     top_url = gocdb_api + top_req
-    gocdb_site_xml = argoalert.get_gocdb(top_url, ca_bundle, hostcert, hostkey, verify)
+    gocdb_site_xml = argoalert.get_gocdb(top_url, auth_info, ca_bundle)
 
     # Convert top-level gocdb xml data to contacts object
     top_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml, use_notif_flag, test_emails)
 
     # Get sub level contact data from gocdb
     sub_url = gocdb_api + sub_req
-    gocdb_service_xml = argoalert.get_gocdb(sub_url, ca_bundle, hostcert, hostkey, verify)
+    gocdb_service_xml = argoalert.get_gocdb(sub_url, auth_info, ca_bundle)
 
     # Convert sub-level site gocdb xml data to contacts object
     sub_contacts = argoalert.gocdb_to_contacts(gocdb_service_xml, use_notif_flag, test_emails)
