@@ -6,13 +6,14 @@ import logging
 from defusedxml.minidom import parseString
 
 
-
-def transform(argo_event, environment):
+def transform(argo_event, environment, grouptype, timeout):
     """Transform an argo status event to an alerta alert
 
     Args:
         argo_event: obj. Json representation of an argo status event
         environment: str. Alerta enviroment parameter to build the alert
+        grouptype: str. name of top-level grouping type used in this tenant
+        timeout: int. Alert timeout in seconds
 
     Return:
         obj: Json representation of an alerta alert
@@ -26,29 +27,46 @@ def transform(argo_event, environment):
 
     # alerta vars
     resource = ""
-    event = "status"
+    event = etype + "status"
     alerta_service = []
+    text = ""
+
+    # prepare alerta attributes
+    attributes = {}
+    attributes["_group"] = group
+    attributes["_service"] = service
+    attributes["_endpoint"] = hostname
+    attributes["_metric"] = metric
+    attributes["_repeat"] = argo_event["repeat"]
+    attributes["_ts_monitored"] = argo_event["ts_monitored"]
+    attributes["_ts_processed"] = argo_event["ts_processed"]
+
+  
 
     if etype == "endpoint_group":
         alerta_service.append("endpoint_group")
         resource = group
+        text = "[ {0} ] - {1} {0} is {2}".format(group,grouptype, status.upper())
     elif etype == "service":
         alerta_service.append("service")
         resource = group + "/" + service
+	text = "[ {0} ] - Service {1} is {2}".format(group,service,status.upper())
     elif etype == "endpoint":
         alerta_service.append("endpoint")
         resource = group + "/" + service + "/" + hostname
+        text = "[ {0} ] - Endpoint {1}:{2} is {3}".format(group,hostname,service,status.upper())
     elif etype == "metric":
         alerta_service.append("metric")
         resource = group + "/" + service + "/" + hostname + "/" + metric
+        text = "[ {0} ] - Metric {1}@({2}:{3}) is {4}".format(group,metric,hostname,service,status.upper())
     # prepare alerta json
     alerta = {"environment": environment, "event": event, "resource": resource,
-              "service": alerta_service, "severity": status}
+              "service": alerta_service, "severity": status, "text": text, "attributes": attributes, "timeout":timeout}
 
     return alerta
 
 
-def read_and_send(message, environment, alerta_url, alerta_token):
+def read_and_send(message, environment, alerta_url, alerta_token, options):
     """Read an argo status event from kafka and send it to alerta
 
     Args:
@@ -56,6 +74,7 @@ def read_and_send(message, environment, alerta_url, alerta_token):
         environment: str. Alerta environment to be used (e.g. 'Devel')
         alerta_url: str. Alerta api endpoint
         alerta_token: str. Alerta api access token
+        options: dict. Various alert options such as timeout and group type
 
     """
     try:
@@ -65,7 +84,7 @@ def read_and_send(message, environment, alerta_url, alerta_token):
         return
 
     try:
-        alerta = transform(argo_event, environment)
+        alerta = transform(argo_event, environment, options["group_type"], options["timeout"])
     except KeyError:
         logging.warning("WRONG JSON SCHEMA: " + message.value)
         return
@@ -85,7 +104,7 @@ def read_and_send(message, environment, alerta_url, alerta_token):
 
 
 def start_listening(environment, kafka_endpoints, kafka_topic,
-                    alerta_endpoint, alerta_token):
+                    alerta_endpoint, alerta_token, options):
     """Start listening to a kafka topic and send alerts to an alerta endpoint
 
     Args:
@@ -94,6 +113,7 @@ def start_listening(environment, kafka_endpoints, kafka_topic,
         kafka_topic: str. kafka topic to listen t
         alerta_endpoint: str. Alerta api endpoint
         alerta_token: str. Alerta api access token
+        opts: dict. various alert options such as timeout and group type
 
     """
 
@@ -104,7 +124,7 @@ def start_listening(environment, kafka_endpoints, kafka_topic,
                              group_id='argo-alerta',
                              bootstrap_servers=kafka_list)
     for message in consumer:
-        read_and_send(message, environment, alerta_endpoint, alerta_token)
+        read_and_send(message, environment, alerta_endpoint, alerta_token, options)
 
 
 def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
@@ -117,6 +137,7 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
     Return:
         obj: Json representation of contact information
     """
+     
     xmldoc = parseString(gocdb_xml)
     contacts = []
     clist = xmldoc.getElementsByTagName("CONTACT_EMAIL")
@@ -159,21 +180,26 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
     return contacts
 
 
-def contacts_to_alerta(contacts):
+def contacts_to_alerta(contacts,extras):
     """Transform a contacts json object to alerta's rule json object
 
     Args:
         contacts: obj. Json representation of contact information
+        extras: list(str). List of emails to be added as extra recipients
 
     Return:
         obj: Json representation of alerta mailer rules
     """
+
+
+
     rules = []
     for c in contacts:
 
         rule_name = "rule_" + c["name"]
-        rule_fields = [{u"field": u"resource", u"regex": c["name"]}]
+        rule_fields = [{u"field": u"resource", u"regex": "^{0}($|\\/)".format(c["name"])}]
         rule_contacts = [c["email"]]
+        rule_contacts.extend(extras)
         rule_exclude = True
         rule = {u"name": rule_name, u"fields": rule_fields, u"contacts": rule_contacts, u"exclude": rule_exclude}
         rules.append(rule)
