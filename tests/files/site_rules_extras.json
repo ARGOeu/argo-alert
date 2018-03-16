@@ -4,7 +4,7 @@
         "fields": [
             {"field": "resource", "regex": "^Site-A($|\\/)"}
         ],
-        "contacts": ["admin@site-a.email.foo"],
+        "contacts": ["test1@email.foo", "extra01@email.foo", "extra02@email.foo"],
         "exclude":true
     },
     {
@@ -12,7 +12,7 @@
         "fields": [
             {"field": "resource", "regex": "^Site-B($|\\/)"}
         ],
-        "contacts": ["admin@site-b.email.foo"],
+        "contacts": ["test2@email.foo", "extra01@email.foo", "extra02@email.foo"],
         "exclude":true
     },
     {
@@ -20,7 +20,7 @@
         "fields": [
             {"field": "resource", "regex": "^Site-D($|\\/)"}
         ],
-        "contacts": ["admin@site-d.email.foo"],
+        "contacts": ["test3@email.foo", "extra01@email.foo", "extra02@email.foo"],
         "exclude":true
     },
     {
@@ -28,7 +28,7 @@
         "fields": [
             {"field": "resource", "regex": "^Site-F($|\\/)"}
         ],
-        "contacts": ["admin@site-f.email.foo"],
+        "contacts": ["test1@email.foo", "extra01@email.foo", "extra02@email.foo"],
         "exclude":true
     }
 ]

@@ -21,7 +21,21 @@ def main(args=None):
     log_level = parser.get("logging", "level")
     logging.basicConfig(level=log_level)
 
-    argoalert.start_listening(environment, kafka_endpoint, kafka_topic, alerta_endpoint, alerta_token)
+    # default alert timeout value
+    alert_timeout = 3600
+    if parser.has_option("alerta", "alert-timeout"):
+        alert_timeout = parser.get("alerta", "alert-timeout")
+
+    group_type = "Group"
+    if parser.has_option("alerta", "group-type"):
+        alert_timeout = parser.get("alerta", "group-type")
+
+    # create alert options dictionary
+    options = {"timeout": alert_timeout, "group_type": group_type}
+
+
+
+    argoalert.start_listening(environment, kafka_endpoint, kafka_topic, alerta_endpoint, alerta_token, alert_timeout, group_type)
 
 
 if __name__ == "__main__":

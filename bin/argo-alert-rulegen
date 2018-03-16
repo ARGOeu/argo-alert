@@ -38,6 +38,12 @@ def main(args=None):
     top_req = parser.get("gocdb","top_request")
     sub_req = parser.get("gocdb","sub_request")
 
+    extra_emails = []
+    # Check if configuration has extra emails defined
+    if parser.has_option("alerta", "extra-emails"):
+        extra_emails = parser.get("alerta","extra-emails").split(",")
+
+
 
     logging.basicConfig(level=log_level)
 
@@ -63,7 +69,7 @@ def main(args=None):
     contacts = top_contacts + sub_contacts
 
     # Convert contacts to alerta mail rules
-    rules = argoalert.contacts_to_alerta(contacts)
+    rules = argoalert.contacts_to_alerta(contacts, extra_emails)
 
     # Save rules to alerta mailer rule file
     argoalert.write_rules(rules, rule_file)

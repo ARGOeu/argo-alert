@@ -31,12 +31,18 @@ topic=metrics
 [alerta]
 # alerta service endpoint
 endpoint=http://localhost:8080
-# alerta enviroment
+# alerta environment
 environment=devel
 # alerta token
 token=s3cr3tt0ke3n
 # path to store the generated mail rules
 mail-rules=/home/root/alerta-rules-101
+# extra emails to be notified
+extra-emails=alert01@mail.example.foo,alert02@mail.example.foo
+# alert timeout is the time in seconds needed for the alert to be considered stale
+aleart-timeout = 3600
+# group type of the tenant's top level group used in alert generation and mail template
+group-type = Group
 
 [logging]
 # loggin level
