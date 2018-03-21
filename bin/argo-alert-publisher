@@ -33,9 +33,7 @@ def main(args=None):
     # create alert options dictionary
     options = {"timeout": alert_timeout, "group_type": group_type}
 
-
-
-    argoalert.start_listening(environment, kafka_endpoint, kafka_topic, alerta_endpoint, alerta_token, alert_timeout, group_type)
+    argoalert.start_listening(environment, kafka_endpoint, kafka_topic, alerta_endpoint, alerta_token, options)
 
 
 if __name__ == "__main__":
