@@ -108,6 +108,8 @@ extra-emails=alert01@mail.example.foo,alert02@mail.example.foo
 aleart-timeout = 3600
 # group type of the tenant's top level group used in alert generation and mail template
 group-type = Group
+# report name used in argo-web-ui url construction
+report = Critical
 
 [logging]
 # loggin level
