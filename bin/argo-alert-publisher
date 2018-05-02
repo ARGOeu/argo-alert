@@ -30,8 +30,16 @@ def main(args=None):
     if parser.has_option("alerta", "group-type"):
         group_type = parser.get("alerta", "group-type")
 
+    report = "Critical"
+    if parser.has_option("alerta", "report"):
+        report = parser.get("alerta", "report")
+
+    ui_endpoint = ""
+    if parser.has_option("alerta", "ui_endpoint"):
+        ui_endpoint = parser.get("alerta", "ui_endpoint")
+
     # create alert options dictionary
-    options = {"timeout": alert_timeout, "group_type": group_type}
+    options = {"timeout": alert_timeout, "group_type": group_type, "report": report, "ui_endpoint": ui_endpoint}
 
     argoalert.start_listening(environment, kafka_endpoint, kafka_topic, alerta_endpoint, alerta_token, options)
 
