@@ -1,9 +1,16 @@
 import json
 import unittest
 from argoalert import argoalert
+import os
 
+
+# establish path for the resource
+def get_resource_path(relative_path):
+    return os.path.join(os.path.dirname(__file__), relative_path)
 
 class TestArgoAlertMethods(unittest.TestCase):
+
+
 
     # Test the transformation of argo endpoint group status event to alerta alert representation
     def test_endpoint_group_event(self):
@@ -17,7 +24,7 @@ class TestArgoAlertMethods(unittest.TestCase):
                   '"severity": "ok", "text": "[ SITEA ] - Project SITEA is OK", "timeout": 20}'
 
         argo_json = json.loads(argo_str)
-        alerta_json = argoalert.transform(argo_json,"devel", "Project", 20,"ui.argo.foo","Critical")
+        alerta_json = argoalert.transform(argo_json,"devel", "Project", 20,"ui.argo.foo", "Critical")
         alerta_str = json.dumps(alerta_json, sort_keys=True)
 
         self.assertEqual(alerta_str, exp_str)
@@ -76,9 +83,9 @@ class TestArgoAlertMethods(unittest.TestCase):
 
     # Test service group gocdb xml to contacts json transformation
     def test_sg_gocdb_to_contacts_notify_flag(self):
-        xml_fn = "./tests/files/sg_gocdb.xml"
-        notify_json_fn = "./tests/files/sg_contacts_notify.json"
-        all_json_fn = "./tests/files/sg_contacts_all.json"
+        xml_fn = get_resource_path("./files/sg_gocdb.xml")
+        notify_json_fn = get_resource_path("./files/sg_contacts_notify.json")
+        all_json_fn = get_resource_path("./files/sg_contacts_all.json")
 
         with open(xml_fn, 'r') as xml_file:
             xml_data = xml_file.read().replace('\n', '')
@@ -106,9 +113,9 @@ class TestArgoAlertMethods(unittest.TestCase):
     # Test gocdb xml to contacts json transformation
     def test_site_gocdb_to_contacts_notify_flag(self):
 
-        xml_fn = "./tests/files/site_gocdb.xml"
-        notify_json_fn = "./tests/files/site_contacts_notify.json"
-        all_json_fn = "./tests/files/site_contacts_all.json"
+        xml_fn = get_resource_path("./files/site_gocdb.xml")
+        notify_json_fn = get_resource_path("./files/site_contacts_notify.json")
+        all_json_fn = get_resource_path("./files/site_contacts_all.json")
 
         with open(xml_fn, 'r') as xml_file:
             xml_data = xml_file.read().replace('\n', '')
@@ -136,8 +143,8 @@ class TestArgoAlertMethods(unittest.TestCase):
     # Test servicegroup contacts to alerta transformation
     def test_sg_contacts_to_alerta(self):
 
-        cfn = "./tests/files/sg_contacts_notify.json"
-        rfn = "./tests/files/sg_rules.json"
+        cfn = get_resource_path("./files/sg_contacts_notify.json")
+        rfn = get_resource_path("./files/sg_rules.json")
 
         with open(rfn, 'r') as ruleJson:
             rule_data = ruleJson.read().replace('\n', '')
@@ -153,8 +160,8 @@ class TestArgoAlertMethods(unittest.TestCase):
 
      # Test site contacts to alerta transformation
     def test_site_contacts_to_alerta(self):
-        cfn = "./tests/files/site_contacts_notify.json"
-        rfn = "./tests/files/site_rules.json"
+        cfn = get_resource_path("./files/site_contacts_notify.json")
+        rfn = get_resource_path("./files/site_rules.json")
 
         with open(rfn, 'r') as ruleJson:
             rule_data = ruleJson.read().replace('\n', '')
@@ -170,8 +177,8 @@ class TestArgoAlertMethods(unittest.TestCase):
 
     # Test gocdb xml with test emails to final rules
     def test_site_gocdb_test_mails(self):
-        xml_fn = "./tests/files/site_gocdb.xml"
-        site_rules_fn = "./tests/files/site_rules_test_emails.json"
+        xml_fn = get_resource_path("./files/site_gocdb.xml")
+        site_rules_fn = get_resource_path("./files/site_rules_test_emails.json")
 
         with open(xml_fn, 'r') as xml_file:
             xml_data = xml_file.read().replace('\n', '')
@@ -191,8 +198,8 @@ class TestArgoAlertMethods(unittest.TestCase):
 
     # Test gocdb xml with test emails to final rules
     def test_sg_gocdb_test_mails(self):
-        xml_fn = "./tests/files/sg_gocdb.xml"
-        site_rules_fn = "./tests/files/sg_rules_test_emails.json"
+        xml_fn = get_resource_path("./files/sg_gocdb.xml")
+        site_rules_fn = get_resource_path("./files/sg_rules_test_emails.json")
 
         with open(xml_fn, 'r') as xml_file:
             xml_data = xml_file.read().replace('\n', '')
@@ -212,8 +219,8 @@ class TestArgoAlertMethods(unittest.TestCase):
 
     # Test gocdb xml with test emails and extra emails to final rules
     def test_site_extras_mails(self):
-        xml_fn = "./tests/files/site_gocdb.xml"
-        site_rules_fn = "./tests/files/site_rules_extras.json"
+        xml_fn = get_resource_path("./files/site_gocdb.xml")
+        site_rules_fn = get_resource_path("./files/site_rules_extras.json")
 
         with open(xml_fn, 'r') as xml_file:
             xml_data = xml_file.read().replace('\n', '')

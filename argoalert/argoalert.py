@@ -259,14 +259,22 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
 
     indx = 0
     for item in clist:
+        # check if contact email element is empty
+        if item.firstChild is None:
+            continue
 
         # By default accept all contacts
         notify_val = 'Y'
         # If flag on accept only contacts with notification flag
         if use_notif_flag:
-            notify = item.parentNode.getElementsByTagName('NOTIFICATIONS')[0]
-            # if notification flag is set to false skip
-            notify_val = notify.firstChild.nodeValue
+            # query for notification element
+            notify = item.parentNode.getElementsByTagName('NOTIFICATIONS')
+            if len(notify) > 0:
+                # if notification flag is set to false skip
+                notify_val = notify[0].firstChild.nodeValue
+            else:
+                # no notification element was found so skip
+                continue
 
         if notify_val == 'TRUE' or notify_val == 'Y':
             c = dict()
