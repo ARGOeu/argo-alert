@@ -139,6 +139,10 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
     alerta_service = []
     text = ""
 
+    # update report from event
+    if "report" in argo_event:	
+	report = argo_event["report"]
+	logging.info("update report field from event")
 
     # prepare alerta attributes
     attributes = {}
@@ -256,25 +260,26 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
     xmldoc = parseString(gocdb_xml)
     contacts = []
     clist = xmldoc.getElementsByTagName("CONTACT_EMAIL")
+    
 
     indx = 0
     for item in clist:
-        # check if contact email element is empty
-        if item.firstChild is None:
+
+	#Check if field is empty
+	if item.firstChild == None:
             continue
 
         # By default accept all contacts
         notify_val = 'Y'
         # If flag on accept only contacts with notification flag
         if use_notif_flag:
-            # query for notification element
+	    #check if notification flag exists
             notify = item.parentNode.getElementsByTagName('NOTIFICATIONS')
-            if len(notify) > 0:
-                # if notification flag is set to false skip
-                notify_val = notify[0].firstChild.nodeValue
-            else:
-                # no notification element was found so skip
-                continue
+	    if len(notify)>0:
+		# if notification flag is set to false skip
+            	notify_val = notify[0].firstChild.nodeValue
+	    else:
+		continue #notification element not found skip
 
         if notify_val == 'TRUE' or notify_val == 'Y':
             c = dict()
@@ -289,9 +294,9 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
             # if still no name related tag skip
             if len(name_tags) == 0:
                 continue
-
-            c["name"] = name_tags[0].firstChild.nodeValue
-
+            
+            c["name"] = name_tags[0].firstChild.nodeValue	    
+ 
             if test_emails is None:
                 c["email"] = item.firstChild.nodeValue
             else:
