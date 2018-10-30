@@ -3,5 +3,5 @@ nose
 coverage
 pypi-publisher
 kafka-python
-requests>=2.9.0
+requests>=2.20.0
 defusedxml>=0.5
