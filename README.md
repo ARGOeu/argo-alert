@@ -42,6 +42,10 @@ The configuration file for argo-alert provides a `[gocdb]` section to configure 
 and the required certificate parameters for access. The `mail-rules` parameter in `[alerta]` section
 specifies the alerta-mailer rule filename for output.  
 
+Access to gocdb api endpoint support http basic auth or certificate-based. In the case of
+http basic authenticaation (when in config `auth_method=basic` ) `username` and `password` parameters 
+should be set in config file. In the case of certificate-based auth (when in config `auth_method=cert` )
+`hostcert` and `hostkey` parameters should be set.  
 
 Installation / Usage
 --------------------
@@ -60,6 +64,12 @@ Or clone the repo:
 argoalert requires a configuration file with the following options:
 ```
 [gocdb]
+# auth_method to be used when contacting gocdb api: basic-auth or cert
+auth_method=cert
+# username for basic auth
+username=
+# password for basic auth
+password=
 # Path to godcb endpoint
 api=https://gocdb-url.example.foo
 # Path to ca bundle folder
@@ -86,16 +96,26 @@ topic=metrics
 [alerta]
 # alerta service endpoint
 endpoint=http://localhost:8080
-# alerta enviroment
+# alerta environment
 environment=devel
 # alerta token
 token=s3cr3tt0ke3n
 # path to store the generated mail rules
 mail-rules=/home/root/alerta-rules-101
+# extra emails to be notified
+extra-emails=alert01@mail.example.foo,alert02@mail.example.foo
+# alert timeout is the time in seconds needed for the alert to be considered stale
+aleart-timeout = 3600
+# group type of the tenant's top level group used in alert generation and mail template
+group-type = Group
+# report name used in argo-web-ui url construction
+report = Critical
 
 [logging]
 # loggin level
 level = INFO
+
+
 
 ```
 
