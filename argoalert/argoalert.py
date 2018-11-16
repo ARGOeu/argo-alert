@@ -284,19 +284,31 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
         if notify_val == 'TRUE' or notify_val == 'Y':
             c = dict()
             c["type"] = item.parentNode.tagName
-
+            
+  	    service_tags = []
             # Check if name tag exists
             name_tags = item.parentNode.getElementsByTagName("NAME")
             # if not check short name tag
             if len(name_tags) == 0:
                 name_tags = item.parentNode.getElementsByTagName("SHORT_NAME")
+                if len(name_tags) == 0:
+			name_tags = item.parentNode.getElementsByTagName("HOSTNAME")
+			service_tags = item.parentNode.getElementsByTagName("SERVICE_TYPE")
+			if len(service_tags) == 0:
+				continue
+	        	
 
             # if still no name related tag skip
             if len(name_tags) == 0:
                 continue
-            
-            c["name"] = name_tags[0].firstChild.nodeValue	    
- 
+		
+            if len(service_tags) == 0:
+            	c["name"] = name_tags[0].firstChild.nodeValue	    
+ 	    else:
+		name = name_tags[0].firstChild.nodeValue
+		service = service_tags[0].firstChild.nodeValue
+		c["name"] = "\\/" + service + "\\/" + name 	
+
             if test_emails is None:
                 c["email"] = item.firstChild.nodeValue
             else:
@@ -322,8 +334,13 @@ def contacts_to_alerta(contacts, extras):
     rules = []
     for c in contacts:
         rule_name = "rule_" + c["name"]
-        rule_fields = [{u"field": u"resource", u"regex": "^{0}($|\\/)".format(c["name"])}]
-        rule_contacts = [c["email"]]
+	if c["name"].startswith("\\/"):
+		# matching item is NOT in the beginning of the resource path
+		rule_fields = [{u"field": u"resource", u"regex": "{0}($|\\/)".format(c["name"])}]
+        else:
+		# matching item is in the beginning of the resource path
+		rule_fields = [{u"field": u"resource", u"regex": "^{0}($|\\/)".format(c["name"])}]
+	rule_contacts = [c["email"]]
         rule_contacts.extend(extras)
         rule_exclude = True
         rule = {u"name": rule_name, u"fields": rule_fields, u"contacts": rule_contacts, u"exclude": rule_exclude}
@@ -358,7 +375,9 @@ def get_gocdb(api_url, auth_info, ca_bundle):
 
     if r.status_code == 200:
         logging.info("Gocdb data retrieval successful")
-        return r.text.encode('utf-8').strip()
+        
+	text =  r.text.encode('utf-8').strip()	
+	return text
 
     return ""
 
@@ -375,3 +394,4 @@ def write_rules(rules, outfile):
     logging.info("Saving rule to file: " + outfile)
     with open(outfile, "w") as output_file:
         output_file.write(json_str)
+
