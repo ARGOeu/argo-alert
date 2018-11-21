@@ -51,12 +51,19 @@ def main(args=None):
     if args.test_emails is not None:
         test_emails = args.test_emails.split(',')
 
+    group_notify_flag = use_notif_flag
+    if args.group_notify_flag is not None:
+        if args.group_notify_flag.lower() in ('true','yes','y'):
+            group_notify_flag = True
+        else: 
+            group_notify_flag = False
+
     # Get site data from gocdb
     top_url = gocdb_api + top_req
     gocdb_site_xml = argoalert.get_gocdb(top_url, auth_info, ca_bundle)
 
     # Convert top-level gocdb xml data to contacts object
-    top_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml, use_notif_flag, test_emails)
+    top_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml, group_notify_flag, test_emails)
 
     # Get sub level contact data from gocdb
     sub_url = gocdb_api + sub_req
@@ -84,6 +91,8 @@ if __name__ == "__main__":
         required="TRUE")
     arg_parser.add_argument(
         "-t", "--test-emails", help="test-emails", dest="test_emails", metavar="string")
+    arg_parser.add_argument(
+        "-g", "--group-notification-flag", help="use or not the notification flag in top level groups", dest="group_notify_flag", metavar="string")
 
     # Parse the command line arguments accordingly and introduce them to
     # main...
