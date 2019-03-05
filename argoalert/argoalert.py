@@ -135,7 +135,7 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
 
     # alerta vars
     resource = ""
-    event = etype + "status"
+    event = etype + "_status"
     alerta_service = []
     text = ""
 
@@ -153,29 +153,54 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
     attributes["_repeat"] = argo_event["repeat"]
     attributes["_ts_monitored"] = ts_monitored
     attributes["_ts_processed"] = argo_event["ts_processed"]
+    # add event level information
+    if "status_metric" in argo_event:
+    	attributes["_status_metric"] = argo_event["status_metric"]
+    else:
+	attributes["_status_metric"] = ""
+
+    if "status_endpoint" in argo_event:
+	attributes["_status_endpoint"] = argo_event["status_endpoint"]
+    else:
+	attributes["_status_endpoint"] = ""
+
+    if "status_service" in argo_event:
+	attributes["_status_service"] = argo_event["status_service"]
+    else:
+	attributes["_status_service"] = ""
+	
+    if "status_egroup" in argo_event:
+        attributes["_status_egroup"] = argo_event["status_egroup"] 
+    else:
+        attributes["_status_egroup"] = ""
+
+    # add mon messages
+    attributes["_mon_summary"] = argo_event["summary"]
+    attributes["_mon_message"] = argo_event["message"] 
+    attributes["_group_type"] = grouptype
 
     if etype == "endpoint_group":
         alerta_service.append("endpoint_group")
         resource = group
-        text = "[ {0} ] - {1} {0} is {2}".format(group, grouptype, status.upper())
+        text = "[ {0} ] - {1} {2} is {3}".format(environment.upper(), grouptype.capitalize(), group, status.upper())
         if ui_endpoint is not "":
             attributes["_alert_url"] = ui_group_url(ui_endpoint, report, ts_monitored, group)
     elif etype == "service":
         alerta_service.append("service")
         resource = group + "/" + service
-        text = "[ {0} ] - Service {1} is {2}".format(group, service, status.upper())
+        text = "[ {0} ] - Service {1} is {2}".format(environment.upper(), service, status.upper())
         if ui_endpoint is not "":
             attributes["_alert_url"] = ui_service_url(ui_endpoint, report, ts_monitored, group)
     elif etype == "endpoint":
         alerta_service.append("endpoint")
         resource = group + "/" + service + "/" + hostname
-        text = "[ {0} ] - Endpoint {1}:{2} is {3}".format(group, hostname, service, status.upper())
+        text = "[ {0} ] - Endpoint {1} is {2}".format(environment.upper(), hostname, status.upper())
         if ui_endpoint is not "":
             attributes["_alert_url"] = ui_endpoint_url(ui_endpoint, report, ts_monitored, group, service)
     elif etype == "metric":
         alerta_service.append("metric")
         resource = group + "/" + service + "/" + hostname + "/" + metric
-        text = "[ {0} ] - Metric {1}@({2}:{3}) is {4}".format(group, metric, hostname, service, status.upper())
+        text = "[ {0} ] - Metric {1}@({2}:{3}) is {4}".format(environment.upper(), metric, hostname, service, status.upper())
         if ui_endpoint is not "":
             attributes["_alert_url"] = ui_metric_url(ui_endpoint, report, ts_monitored, group, service, hostname)
     # prepare alerta json
@@ -202,9 +227,15 @@ def read_and_send(message, environment, alerta_url, alerta_token, options):
         logging.warning("NOT JSON: " + message.value)
         return
 
+
+    #if metric event discard, allow only endpoint,service and group events to pass
+    if argo_event["type"]=="metric" or argo_event["type"]=="service":
+	logging.info("Discarding metric/service event")
+	return
+
     try:
         alerta = transform(argo_event, environment, options["group_type"], options["timeout"],options ["ui_endpoint"], options["report"])
-    except KeyError:
+    except KeyError as e:
         logging.warning("WRONG JSON SCHEMA: " + message.value)
         return
 
