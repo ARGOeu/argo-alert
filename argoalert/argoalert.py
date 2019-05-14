@@ -34,80 +34,51 @@ def date_end_of_day(dt):
     return dt.replace(hour=23, minute=59, second=59)
 
 
-def ui_group_url(ui_endpoint, report, timestamp, group):
+def ui_group_url(ui_endpoint, report, timestamp, grouptype, group,  environment):
     """Generate an http url to a relevant argo web ui endpoint group timeline page
 
             Args:
                 ui_endpoint: str. Endpoint of designated argo web ui
                 report: str. Report name (and not uuid) which is used in argo web ui url path
                 timestamp: str. alert Zulu timestamp to construct start_time and end_time
-                group: str. alert group name (site / project etc)
+                grouptype: str. type of endpoint group based on report topology
+                group: str. alert group name (name of site / project etc.)
+                environment: str. the alerting environment named after the tenant
 
             Return:
                 str: http url
     """
     start_date = date_only_string(date_days_ago(parse_timestamp(timestamp), 3))
     end_date = date_only_string(parse_timestamp(timestamp))
-    return "https://{0}/lavoisier/status_report-site?site={4}&start={2}&end={3}&report={1}&accept=html".format(
-        ui_endpoint, report, start_date, end_date, group)
+    return "https://{0}/{1}/report-status/{2}/{3}/{4}?start={5}&end={6}".format(
+        ui_endpoint, environment.lower(), report, grouptype.upper() + "S", group, start_date, end_date)
 
 
-def ui_service_url(ui_endpoint, report, timestamp, group):
-    """Generate an http url to a relevant argo web ui service timeline page
-
-            Args:
-                ui_endpoint: str. Endpoint of designated argo web ui
-                report: str. Report name (and not uuid) which is used in argo web ui url path
-                timestamp: str. alert Zulu timestamp to construct start_time and end_time
-                group: str. alert group name (site / project etc)
-
-            Return:
-                str: http url
-    """
-    start_date = date_to_zulu_string(date_start_of_day(date_days_ago(parse_timestamp(timestamp), 3)))
-    end_date = date_to_zulu_string(ahead_one_hour(parse_timestamp(timestamp)))
-    return "https://{0}/lavoisier/status_report-sf?site={4}&start_date={2}&end_date={3}&report={1}&accept=html".format(
-        ui_endpoint, report, start_date, end_date, group)
 
 
-def ui_endpoint_url(ui_endpoint, report, timestamp, group, service):
+
+def ui_endpoint_url(ui_endpoint, report, timestamp, grouptype, group, service, hostname, environment):
     """Generate an http url to a relevant argo web ui endpoint timeline page
 
             Args:
                 ui_endpoint: str. Endpoint of designated argo web ui
                 report: str. Report name (and not uuid) which is used in argo web ui url path
                 timestamp: str. alert Zulu timestamp to construct start_time and end_time
-                group: str. alert group name (site / project etc)
+                grouptype: str. type of endpoint group based on report topology
+                group: str. alert group name (name of site / project etc.)
                 service: str. name of alert affected service
+                hostname: str. hostname of the affected endpoint
+                environment: str. the alerting environment named after the tenant
 
             Return:
                 str: http url
     """
-    start_date = date_to_zulu_string(date_start_of_day(date_days_ago(parse_timestamp(timestamp), 3)))
-    end_date = date_to_zulu_string(ahead_one_hour(parse_timestamp(timestamp)))
-    return "http://{0}/lavoisier/status_report-endpoints?site={4}&service={5}&start_date={2}&end_date={3}&report={1}&accept=html".format(
-        ui_endpoint, report, start_date, end_date, group, service)
+    start_date = date_only_string(date_days_ago(parse_timestamp(timestamp), 3))
+    end_date = date_only_string(parse_timestamp(timestamp))
+    return "http://{0}/{1}/report-status/{2}/{3}/{4}/{5}/{6}?start={7}&end={8}".format(
+        ui_endpoint, environment.lower(), report, grouptype.upper() + "S", group, service, hostname,  start_date, end_date)
 
 
-
-def ui_metric_url(ui_endpoint, report, timestamp, group, service, endpoint):
-    """Generate an http url to a relevant argo web ui metric timeline page
-
-        Args:
-            ui_endpoint: str. Endpoint of designated argo web ui
-            report: str. Report name (and not uuid) which is used in argo web ui url path
-            timestamp: str. alert Zulu timestamp to construct start_time and end_time
-            group: str. alert group name (site / project etc)
-            service: str. name of alert affected service
-            endpoint: str. name of alert affected endpoint
-
-        Return:
-            str: http url
-    """
-    start_date = date_to_zulu_string(date_start_of_day(date_days_ago(parse_timestamp(timestamp), 3)))
-    end_date = date_to_zulu_string(ahead_one_hour(parse_timestamp(timestamp)))
-    return "http://{0}/lavoisier/status_report-metrics?site={4}&service={5}&endpoint={6}&start_date={2}&end_date={3}&report={1}&overview=mod&accept=html".format(
-        ui_endpoint, report, start_date, end_date, group, service, endpoint)
 
 
 
@@ -203,25 +174,25 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
         resource = group
         text = "[ {0} ] - {1} {2} is {3}".format(environment.upper(), grouptype.capitalize(), group, status.upper())
         if ui_endpoint is not "":
-            attributes["_alert_url"] = ui_group_url(ui_endpoint, report, ts_monitored, group)
+            attributes["_alert_url"] = ui_group_url(ui_endpoint, report, ts_monitored, grouptype, group, environment)
+
     elif etype == "service":
         alerta_service.append("service")
         resource = group + "/" + service
         text = "[ {0} ] - Service {1} is {2}".format(environment.upper(), service, status.upper())
-        if ui_endpoint is not "":
-            attributes["_alert_url"] = ui_service_url(ui_endpoint, report, ts_monitored, group)
+        
     elif etype == "endpoint":
         alerta_service.append("endpoint")
         resource = service + "/" + hostname
         text = "[ {0} ] - Endpoint {1}/{2} is {3}".format(environment.upper(), hostname, service, status.upper())
         if ui_endpoint is not "":
-            attributes["_alert_url"] = ui_endpoint_url(ui_endpoint, report, ts_monitored, group, service)
+            attributes["_alert_url"] = ui_endpoint_url(ui_endpoint, report, ts_monitored, grouptype, group, service, hostname, environment)
+
     elif etype == "metric":
         alerta_service.append("metric")
         resource = group + "/" + service + "/" + hostname + "/" + metric
         text = "[ {0} ] - Metric {1}@({2}:{3}) is {4}".format(environment.upper(), metric, hostname, service, status.upper())
-        if ui_endpoint is not "":
-            attributes["_alert_url"] = ui_metric_url(ui_endpoint, report, ts_monitored, group, service, hostname)
+        
     # prepare alerta json
     alerta = {"environment": environment, "event": event, "resource": resource,
               "service": alerta_service, "severity": status, "text": text, "attributes": attributes, "timeout": timeout}
