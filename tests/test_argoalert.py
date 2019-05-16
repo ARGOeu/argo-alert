@@ -56,8 +56,8 @@ class TestArgoAlertMethods(unittest.TestCase):
         exp_str = '{"attributes": {"_alert_url": "http://ui.argo.foo/lavoisier/status_report-endpoints?site=SITEA&service=httpd&start_date=2018-04-21T00:00:00Z&end_date=2018-04-24T14:35:33Z&report=Critical&accept=html", '\
                   '"_endpoint": "webserver01", "_group": "SITEA", "_group_type": "", "_metric": "httpd.memory", "_mon_message": "", "_mon_summary": "", ' \
                   '"_repeat": "false", "_service": "httpd", "_status_egroup": "", "_status_endpoint": "", "_status_metric": "", "_status_service": "", "_ts_monitored": "2018-04-24T13:35:33Z", "_ts_processed": ""}, "environment": ' \
-                  '"devel", "event": "endpoint_status", "resource": "SITEA/httpd/webserver01", "service": [' \
-                  '"endpoint"], "severity": "ok", "text": "[ DEVEL ] - Endpoint webserver01 is OK", "timeout": ' \
+                  '"devel", "event": "endpoint_status", "resource": "httpd/webserver01", "service": [' \
+                  '"endpoint"], "severity": "ok", "text": "[ DEVEL ] - Endpoint webserver01/httpd is OK", "timeout": ' \
                   '122}'
 
         argo_json = json.loads(argo_str)

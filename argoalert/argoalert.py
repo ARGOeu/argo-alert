@@ -193,8 +193,8 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
             attributes["_alert_url"] = ui_service_url(ui_endpoint, report, ts_monitored, group)
     elif etype == "endpoint":
         alerta_service.append("endpoint")
-        resource = group + "/" + service + "/" + hostname
-        text = "[ {0} ] - Endpoint {1} is {2}".format(environment.upper(), hostname, status.upper())
+        resource = service + "/" + hostname
+        text = "[ {0} ] - Endpoint {1}/{2} is {3}".format(environment.upper(), hostname, service, status.upper())
         if ui_endpoint is not "":
             attributes["_alert_url"] = ui_endpoint_url(ui_endpoint, report, ts_monitored, group, service)
     elif etype == "metric":
