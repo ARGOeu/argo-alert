@@ -174,6 +174,25 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
     else:
         attributes["_status_egroup"] = ""
 
+
+    # add group endpoint statuses
+
+    if "group_endpoints" in argo_event:
+        attributes["_group_endpoints"] = argo_event["group_endpoints"]
+    else:
+        attributes["_group_endpoints"] = ""
+
+    if "group_statuses" in argo_event:
+        attributes["_group_statuses"] = argo_event["group_statuses"]
+    else:
+        attributes["_group_statuses"] = ""
+
+    if "group_services" in argo_event:
+        attributes["_group_services"] = argo_event["group_services"]
+    else:
+        attributes["_group_services"] = ""
+
+
     # add mon messages
     attributes["_mon_summary"] = argo_event["summary"]
     attributes["_mon_message"] = argo_event["message"] 
