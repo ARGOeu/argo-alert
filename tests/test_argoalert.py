@@ -18,7 +18,8 @@ class TestArgoAlertMethods(unittest.TestCase):
                  '"hostname":"webserver01","summary":"foo","type":"endpoint_group", "repeat": "false", ' \
                  '"ts_monitored":"2018-04-24T13:35:33Z", "ts_processed":"", "message":"", "summary":""} '
         exp_str = '{"attributes": {"_alert_url": "https://ui.argo.foo/devel/report-status/Critical/PROJECTS/SITEA?start=2018-04-21&end=2018-04-24", '\
-                  '"_endpoint": "webserver01", "_group": "SITEA", "_group_endpoints": "", "_group_services": "", "_group_statuses": "", "_group_type": "Project", "_metric": "httpd.memory", "_mon_message": "", "_mon_summary": "", ' \
+                  '"_endpoint": "webserver01", "_group": "SITEA", "_group_endpoints": "", "_group_services": "", "_group_statuses": "", "_group_type": "Project", "_metric": "httpd.memory", ' \
+                  '"_metric_names": "", "_metric_statuses": "", "_mon_message": "", "_mon_summary": "", ' \
                   '"_repeat": "false", "_service": "httpd", "_status_egroup": "", "_status_endpoint": "", "_status_metric": "", "_status_service": "", "_ts_monitored": "2018-04-24T13:35:33Z", "_ts_processed": ""}, "environment": ' \
                   '"devel", "event": "endpoint_group_status", "resource": "SITEA", "service": ["endpoint_group"], ' \
                   '"severity": "ok", "text": "[ DEVEL ] - Project SITEA is OK", "timeout": 20}'
@@ -36,7 +37,8 @@ class TestArgoAlertMethods(unittest.TestCase):
                    '"hostname":"webserver01","summary":"foo","type":"service", "repeat": "false", "ts_monitored":"2018-04-24T13:35:33Z", ' \
                    '"ts_processed":"", "message":"", "summary":""} '
         exp_str = '{"attributes": {' \
-                   '"_endpoint": "webserver01", "_group": "SITEA", "_group_endpoints": "", "_group_services": "", "_group_statuses": "", "_group_type": "", "_metric": "httpd.memory", "_mon_message": "", "_mon_summary": "", "_repeat": "false", ' \
+                   '"_endpoint": "webserver01", "_group": "SITEA", "_group_endpoints": "", "_group_services": "", "_group_statuses": "", "_group_type": "", "_metric": "httpd.memory", ' \
+                   '"_metric_names": "", "_metric_statuses": "", "_mon_message": "", "_mon_summary": "", "_repeat": "false", ' \
                    '"_service": "httpd", "_status_egroup": "", "_status_endpoint": "", "_status_metric": "", "_status_service": "", "_ts_monitored": "2018-04-24T13:35:33Z", "_ts_processed": ""}, ' \
                    '"environment": "devel", "event": "service_status", "resource": "SITEA/httpd", "service": ["service"], ' \
                    '"severity": "ok", "text": "[ DEVEL ] - Service httpd is OK", "timeout": 32}'
@@ -53,7 +55,8 @@ class TestArgoAlertMethods(unittest.TestCase):
                  '"hostname":"webserver01","summary":"foo","type":"endpoint", "repeat": "false", "ts_monitored":"2018-04-24T13:35:33Z", ' \
                  '"ts_processed":"", "message":"", "summary":""} '
         exp_str = '{"attributes": {"_alert_url": "http://ui.argo.foo/devel/report-status/Critical/SITES/SITEA/httpd/webserver01?start=2018-04-21&end=2018-04-24", '\
-                  '"_endpoint": "webserver01", "_group": "SITEA", "_group_endpoints": "", "_group_services": "", "_group_statuses": "", "_group_type": "Site", "_metric": "httpd.memory", "_mon_message": "", "_mon_summary": "", ' \
+                  '"_endpoint": "webserver01", "_group": "SITEA", "_group_endpoints": "", "_group_services": "", "_group_statuses": "", "_group_type": "Site", "_metric": "httpd.memory", ' \
+                  '"_metric_names": "", "_metric_statuses": "", "_mon_message": "", "_mon_summary": "", ' \
                   '"_repeat": "false", "_service": "httpd", "_status_egroup": "", "_status_endpoint": "", "_status_metric": "", "_status_service": "", "_ts_monitored": "2018-04-24T13:35:33Z", "_ts_processed": ""}, "environment": ' \
                   '"devel", "event": "endpoint_status", "resource": "httpd/webserver01", "service": [' \
                   '"endpoint"], "severity": "ok", "text": "[ DEVEL ] - Endpoint webserver01/httpd is OK", "timeout": ' \
@@ -69,7 +72,8 @@ class TestArgoAlertMethods(unittest.TestCase):
     def test_endpoint_metric_event(self):
         argo_str = '{"status":"OK","endpoint_group":"SITEA","metric":"httpd.memory","service":"httpd","hostname":"webserver01","summary":"foo","type":"metric", "repeat": "false", "ts_monitored":"2018-04-24T13:35:33Z", "ts_processed":"", "message":"", "summary":""}'
         exp_str = '{"attributes": {' \
-                  '"_endpoint": "webserver01", "_group": "SITEA", "_group_endpoints": "", "_group_services": "", "_group_statuses": "", "_group_type": "", "_metric": "httpd.memory", "_mon_message": "", "_mon_summary": "", ' \
+                  '"_endpoint": "webserver01", "_group": "SITEA", "_group_endpoints": "", "_group_services": "", "_group_statuses": "", "_group_type": "", "_metric": "httpd.memory", ' \
+                  '"_metric_names": "", "_metric_statuses": "", "_mon_message": "", "_mon_summary": "", ' \
                   '"_repeat": "false", "_service": "httpd", "_status_egroup": "", "_status_endpoint": "", "_status_metric": "", "_status_service": "", "_ts_monitored": "2018-04-24T13:35:33Z", "_ts_processed": ""}, "environment": ' \
                   '"devel", "event": "metric_status", "resource": "SITEA/httpd/webserver01/httpd.memory", "service": [' \
                   '"metric"], "severity": "ok", "text": "[ DEVEL ] - Metric httpd.memory@(webserver01:httpd) is OK", ' \

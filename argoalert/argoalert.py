@@ -145,6 +145,18 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
     else:
         attributes["_status_egroup"] = ""
 
+    # add metrics statuses
+   
+    if "metric_statuses" in argo_event:
+        attributes["_metric_statuses"] = argo_event["metric_statuses"]
+    else:
+        attributes["_metric_statuses"] = ""
+
+    if "metric_names" in argo_event:
+        attributes["_metric_names"] = argo_event["metric_names"]
+    else:
+        attributes["_metric_names"] = ""
+
 
     # add group endpoint statuses
 
