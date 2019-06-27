@@ -369,22 +369,22 @@ def contacts_to_alerta(contacts, extras, environment=None):
         rule_name = "rule_" + c["name"]
         if c["name"].startswith("\\/"):
             # matching item is NOT in the beginning of the resource path
-            rule_fields = [{u"field": u"resource",
-                            u"regex": "{0}($|\\/)".format(c["name"])}]
+            rule_fields = [{"field": "resource",
+                            "regex": "{0}($|\\/)".format(c["name"])}]
         else:
             # matching item is in the beginning of the resource path
-            rule_fields = [{u"field": u"resource",
-                            u"regex": "^{0}($|\\/)".format(c["name"])}]
+            rule_fields = [{"field": "resource",
+                            "regex": "^{0}($|\\/)".format(c["name"])}]
 
         if environment is not None:
             rule_fields.append(
-                {u"field": u"environment", u"regex": "{0}".format(environment)})
+                {"field": "environment", "regex": "{0}".format(environment)})
 
         rule_contacts = [c["email"]]
         rule_contacts.extend(extras)
         rule_exclude = True
-        rule = {u"name": rule_name, u"fields": rule_fields,
-                u"contacts": rule_contacts, u"exclude": rule_exclude}
+        rule = {"name": rule_name, "fields": rule_fields,
+                "contacts": rule_contacts, "exclude": rule_exclude}
         rules.append(rule)
 
     logging.info("Generated " + str(len(rules)) +

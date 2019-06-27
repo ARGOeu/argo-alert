@@ -197,7 +197,6 @@ class TestArgoAlertMethods(unittest.TestCase):
                 contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, test_emails)
 
                 rules = argoalert.contacts_to_alerta(contacts, [])
-                print rules
                 self.assertEqual(exp_json, rules)
 
     # Test gocdb xml with test emails to final rules
@@ -218,7 +217,6 @@ class TestArgoAlertMethods(unittest.TestCase):
                 contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, test_emails)
 
                 rules = argoalert.contacts_to_alerta(contacts, [])
-                print rules
                 self.assertEqual(exp_json, rules)
 
     # Test gocdb xml with test emails and extra emails to final rules
@@ -240,7 +238,6 @@ class TestArgoAlertMethods(unittest.TestCase):
                 contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, test_emails)
 
                 rules = argoalert.contacts_to_alerta(contacts, extra_emails)
-                print rules
                 self.assertEqual(exp_json, rules)
 
 
