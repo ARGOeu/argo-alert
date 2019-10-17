@@ -5,6 +5,7 @@
             {"field": "resource", "regex": "^SG_A($|\\/)"}
         ],
         "contacts": ["test1@email.foo"],
+        "original_contacts": ["sg_a@email.foo", "sg_x@email.foo", "sg_y@email.com"],
         "exclude":true
     },
     {
@@ -13,6 +14,7 @@
             {"field": "resource", "regex": "^SG_C($|\\/)"}
         ],
         "contacts": ["test2@email.foo"],
+        "original_contacts": ["sg_c@email.foo", "sg_w@email.foo"],
         "exclude":true
     },
     {
@@ -21,6 +23,7 @@
             {"field": "resource", "regex": "^SG_D($|\\/)"}
         ],
         "contacts": ["test1@email.foo"],
+        "original_contacts": ["sg_d@email.foo"],
         "exclude":true
     }
 ]
