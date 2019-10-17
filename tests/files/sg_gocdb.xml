@@ -4,7 +4,7 @@
        <DESCRIPTION>description of SG_A</DESCRIPTION>
        <NOTIFICATIONS>Y</NOTIFICATIONS>
        <MONITORED>Y</MONITORED>
-       <CONTACT_EMAIL>sg_a@email.foo</CONTACT_EMAIL>
+       <CONTACT_EMAIL>sg_a@email.foo,sg_x@email.foo   ; sg_y@email.com   </CONTACT_EMAIL>
    </SERVICE_GROUP>
    <SERVICE_GROUP PRIMARY_KEY="02">
        <NAME>SG_B</NAME>
@@ -18,7 +18,7 @@
        <DESCRIPTION>description of SG_C</DESCRIPTION>
        <NOTIFICATIONS>Y</NOTIFICATIONS>
        <MONITORED>Y</MONITORED>
-       <CONTACT_EMAIL>sg_c@email.foo</CONTACT_EMAIL>
+       <CONTACT_EMAIL>sg_c@email.foo;sg_w@email.foo</CONTACT_EMAIL>
    </SERVICE_GROUP>
    <SERVICE_GROUP PRIMARY_KEY="04">
        <NAME>SG_D</NAME>

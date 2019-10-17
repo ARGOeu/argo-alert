@@ -2,12 +2,12 @@
   {
     "type": "SERVICE_GROUP",
     "name": "SG_A",
-    "email": "sg_a@email.foo"
+    "email": "sg_a@email.foo,sg_x@email.foo   ; sg_y@email.com   "
   },
   {
     "type": "SERVICE_GROUP",
     "name": "SG_C",
-    "email": "sg_c@email.foo"
+    "email": "sg_c@email.foo;sg_w@email.foo"
   },
   {
     "type": "SERVICE_GROUP",
