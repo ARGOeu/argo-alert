@@ -15,14 +15,16 @@ def parse_timestamp(timestamp):
 def date_only_string(dt):
     return dt.strftime("%Y-%m-%d")
 
+
 def ahead_one_hour(dt):
     return dt + timedelta(hours=1)
+
 
 def date_to_zulu_string(dt):
     return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def date_days_ago(dt,days):
+def date_days_ago(dt, days):
     return dt - timedelta(days=days)
 
 
@@ -54,9 +56,6 @@ def ui_group_url(ui_endpoint, report, timestamp, grouptype, group,  environment)
         ui_endpoint, environment.lower(), report, grouptype.upper() + "S", group, start_date, end_date)
 
 
-
-
-
 def ui_endpoint_url(ui_endpoint, report, timestamp, grouptype, group, service, hostname, environment):
     """Generate an http url to a relevant argo web ui endpoint timeline page
 
@@ -77,11 +76,6 @@ def ui_endpoint_url(ui_endpoint, report, timestamp, grouptype, group, service, h
     end_date = date_only_string(parse_timestamp(timestamp))
     return "http://{0}/{1}/report-status/{2}/{3}/{4}/{5}/{6}?start={7}&end={8}".format(
         ui_endpoint, environment.lower(), report, grouptype.upper() + "S", group, service, hostname,  start_date, end_date)
-
-
-
-
-
 
 
 def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
@@ -111,9 +105,9 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
     text = ""
 
     # update report from event
-    if "report" in argo_event:	
-	report = argo_event["report"]
-	logging.info("update report field from event")
+    if "report" in argo_event:
+        report = argo_event["report"]
+        logging.info("update report field from event")
 
     # prepare alerta attributes
     attributes = {}
@@ -126,27 +120,27 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
     attributes["_ts_processed"] = argo_event["ts_processed"]
     # add event level information
     if "status_metric" in argo_event:
-    	attributes["_status_metric"] = argo_event["status_metric"]
+        attributes["_status_metric"] = argo_event["status_metric"]
     else:
-	attributes["_status_metric"] = ""
+        attributes["_status_metric"] = ""
 
     if "status_endpoint" in argo_event:
-	attributes["_status_endpoint"] = argo_event["status_endpoint"]
+        attributes["_status_endpoint"] = argo_event["status_endpoint"]
     else:
-	attributes["_status_endpoint"] = ""
+        attributes["_status_endpoint"] = ""
 
     if "status_service" in argo_event:
-	attributes["_status_service"] = argo_event["status_service"]
+        attributes["_status_service"] = argo_event["status_service"]
     else:
-	attributes["_status_service"] = ""
-	
+        attributes["_status_service"] = ""
+
     if "status_egroup" in argo_event:
-        attributes["_status_egroup"] = argo_event["status_egroup"] 
+        attributes["_status_egroup"] = argo_event["status_egroup"]
     else:
         attributes["_status_egroup"] = ""
 
     # add metrics statuses
-   
+
     if "metric_statuses" in argo_event:
         attributes["_metric_statuses"] = argo_event["metric_statuses"]
     else:
@@ -156,7 +150,6 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
         attributes["_metric_names"] = argo_event["metric_names"]
     else:
         attributes["_metric_names"] = ""
-
 
     # add group endpoint statuses
 
@@ -175,36 +168,41 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
     else:
         attributes["_group_services"] = ""
 
-
     # add mon messages
     attributes["_mon_summary"] = argo_event["summary"]
-    attributes["_mon_message"] = argo_event["message"] 
+    attributes["_mon_message"] = argo_event["message"]
     attributes["_group_type"] = grouptype
 
     if etype == "endpoint_group":
         alerta_service.append("endpoint_group")
         resource = group
-        text = "[ {0} ] - {1} {2} is {3}".format(environment.upper(), grouptype.capitalize(), group, status.upper())
+        text = "[ {0} ] - {1} {2} is {3}".format(
+            environment.upper(), grouptype.capitalize(), group, status.upper())
         if ui_endpoint is not "":
-            attributes["_alert_url"] = ui_group_url(ui_endpoint, report, ts_monitored, grouptype, group, environment)
+            attributes["_alert_url"] = ui_group_url(
+                ui_endpoint, report, ts_monitored, grouptype, group, environment)
 
     elif etype == "service":
         alerta_service.append("service")
         resource = group + "/" + service
-        text = "[ {0} ] - Service {1} is {2}".format(environment.upper(), service, status.upper())
-        
+        text = "[ {0} ] - Service {1} is {2}".format(
+            environment.upper(), service, status.upper())
+
     elif etype == "endpoint":
         alerta_service.append("endpoint")
         resource = service + "/" + hostname
-        text = "[ {0} ] - Endpoint {1}/{2} is {3}".format(environment.upper(), hostname, service, status.upper())
+        text = "[ {0} ] - Endpoint {1}/{2} is {3}".format(
+            environment.upper(), hostname, service, status.upper())
         if ui_endpoint is not "":
-            attributes["_alert_url"] = ui_endpoint_url(ui_endpoint, report, ts_monitored, grouptype, group, service, hostname, environment)
+            attributes["_alert_url"] = ui_endpoint_url(
+                ui_endpoint, report, ts_monitored, grouptype, group, service, hostname, environment)
 
     elif etype == "metric":
         alerta_service.append("metric")
         resource = group + "/" + service + "/" + hostname + "/" + metric
-        text = "[ {0} ] - Metric {1}@({2}:{3}) is {4}".format(environment.upper(), metric, hostname, service, status.upper())
-        
+        text = "[ {0} ] - Metric {1}@({2}:{3}) is {4}".format(
+            environment.upper(), metric, hostname, service, status.upper())
+
     # prepare alerta json
     alerta = {"environment": environment, "event": event, "resource": resource,
               "service": alerta_service, "severity": status, "text": text, "attributes": attributes, "timeout": timeout}
@@ -229,14 +227,14 @@ def read_and_send(message, environment, alerta_url, alerta_token, options):
         logging.warning("NOT JSON: " + message.value)
         return
 
-
-    #if metric event discard, allow only endpoint,service and group events to pass
-    if argo_event["type"]=="metric" or argo_event["type"]=="service":
-	logging.info("Discarding metric/service event")
-	return
+    # if metric event discard, allow only endpoint,service and group events to pass
+    if argo_event["type"] == "metric" or argo_event["type"] == "service":
+        logging.info("Discarding metric/service event")
+        return
 
     try:
-        alerta = transform(argo_event, environment, options["group_type"], options["timeout"],options ["ui_endpoint"], options["report"])
+        alerta = transform(argo_event, environment,
+                           options["group_type"], options["timeout"], options["ui_endpoint"], options["report"])
     except KeyError as e:
         logging.warning("WRONG JSON SCHEMA: " + message.value)
         return
@@ -276,7 +274,8 @@ def start_listening(environment, kafka_endpoints, kafka_topic,
                              group_id='argo-alerta',
                              bootstrap_servers=kafka_list)
     for message in consumer:
-        read_and_send(message, environment, alerta_endpoint, alerta_token, options)
+        read_and_send(message, environment, alerta_endpoint,
+                      alerta_token, options)
 
 
 def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
@@ -293,54 +292,54 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
     xmldoc = parseString(gocdb_xml)
     contacts = []
     clist = xmldoc.getElementsByTagName("CONTACT_EMAIL")
-    
 
     indx = 0
     for item in clist:
 
-	#Check if field is empty
-	if item.firstChild == None:
+        # Check if field is empty
+        if item.firstChild == None:
             continue
 
         # By default accept all contacts
         notify_val = 'Y'
         # If flag on accept only contacts with notification flag
         if use_notif_flag:
-	    #check if notification flag exists
+            # check if notification flag exists
             notify = item.parentNode.getElementsByTagName('NOTIFICATIONS')
-	    if len(notify)>0:
-		# if notification flag is set to false skip
-            	notify_val = notify[0].firstChild.nodeValue
-	    else:
-		continue #notification element not found skip
+            if len(notify) > 0:
+                # if notification flag is set to false skip
+                notify_val = notify[0].firstChild.nodeValue
+            else:
+                continue  # notification element not found skip
 
         if notify_val == 'TRUE' or notify_val == 'Y':
             c = dict()
             c["type"] = item.parentNode.tagName
-            
-  	    service_tags = []
+
+            service_tags = []
             # Check if name tag exists
             name_tags = item.parentNode.getElementsByTagName("NAME")
             # if not check short name tag
             if len(name_tags) == 0:
                 name_tags = item.parentNode.getElementsByTagName("SHORT_NAME")
                 if len(name_tags) == 0:
-			name_tags = item.parentNode.getElementsByTagName("HOSTNAME")
-			service_tags = item.parentNode.getElementsByTagName("SERVICE_TYPE")
-			if len(service_tags) == 0:
-				continue
-	        	
+                    name_tags = item.parentNode.getElementsByTagName(
+                        "HOSTNAME")
+                    service_tags = item.parentNode.getElementsByTagName(
+                        "SERVICE_TYPE")
+                    if len(service_tags) == 0:
+                        continue
 
             # if still no name related tag skip
             if len(name_tags) == 0:
                 continue
-		
+
             if len(service_tags) == 0:
-            	c["name"] = name_tags[0].firstChild.nodeValue	    
- 	    else:
-		name = name_tags[0].firstChild.nodeValue
-		service = service_tags[0].firstChild.nodeValue
-		c["name"] = "\\/" + service + "\\/" + name 	
+                c["name"] = name_tags[0].firstChild.nodeValue
+            else:
+                name = name_tags[0].firstChild.nodeValue
+                service = service_tags[0].firstChild.nodeValue
+                c["name"] = "\\/" + service + "\\/" + name
 
             if test_emails is None:
                 c["email"] = item.firstChild.nodeValue
@@ -353,12 +352,13 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
     return contacts
 
 
-def contacts_to_alerta(contacts, extras):
+def contacts_to_alerta(contacts, extras, environment=None):
     """Transform a contacts json object to alerta's rule json object
 
     Args:
         contacts: obj. Json representation of contact information
         extras: list(str). List of emails to be added as extra recipients
+        environment: str. Add tenant's environment name to narrow down the email rules (default=None)
 
     Return:
         obj: Json representation of alerta mailer rules
@@ -367,19 +367,28 @@ def contacts_to_alerta(contacts, extras):
     rules = []
     for c in contacts:
         rule_name = "rule_" + c["name"]
-	if c["name"].startswith("\\/"):
-		# matching item is NOT in the beginning of the resource path
-		rule_fields = [{u"field": u"resource", u"regex": "{0}($|\\/)".format(c["name"])}]
+        if c["name"].startswith("\\/"):
+            # matching item is NOT in the beginning of the resource path
+            rule_fields = [{u"field": u"resource",
+                            u"regex": "{0}($|\\/)".format(c["name"])}]
         else:
-		# matching item is in the beginning of the resource path
-		rule_fields = [{u"field": u"resource", u"regex": "^{0}($|\\/)".format(c["name"])}]
-	rule_contacts = [c["email"]]
+            # matching item is in the beginning of the resource path
+            rule_fields = [{u"field": u"resource",
+                            u"regex": "^{0}($|\\/)".format(c["name"])}]
+
+        if environment is not None:
+            rule_fields.append(
+                {u"field": u"environment", u"regex": "{0}".format(environment)})
+
+        rule_contacts = [c["email"]]
         rule_contacts.extend(extras)
         rule_exclude = True
-        rule = {u"name": rule_name, u"fields": rule_fields, u"contacts": rule_contacts, u"exclude": rule_exclude}
+        rule = {u"name": rule_name, u"fields": rule_fields,
+                u"contacts": rule_contacts, u"exclude": rule_exclude}
         rules.append(rule)
 
-    logging.info("Generated " + str(len(rules)) + " alerta rules from contact information")
+    logging.info("Generated " + str(len(rules)) +
+                 " alerta rules from contact information")
     return rules
 
 
@@ -402,15 +411,17 @@ def get_gocdb(api_url, auth_info, ca_bundle):
 
     logging.info("Requesting data from gocdb api: " + api_url)
     if auth_info["method"] == "cert":
-        r = requests.get(api_url, cert=(auth_info["cert"], auth_info["key"]), verify=verify)
+        r = requests.get(api_url, cert=(
+            auth_info["cert"], auth_info["key"]), verify=verify)
     else:
-        r = requests.get(api_url, auth=HTTPBasicAuth(auth_info["user"], auth_info["pass"]), verify=verify)
+        r = requests.get(api_url, auth=HTTPBasicAuth(
+            auth_info["user"], auth_info["pass"]), verify=verify)
 
     if r.status_code == 200:
         logging.info("Gocdb data retrieval successful")
-        
-	text =  r.text.encode('utf-8').strip()	
-	return text
+
+        text = r.text.encode('utf-8').strip()
+        return text
 
     return ""
 
@@ -427,4 +438,3 @@ def write_rules(rules, outfile):
     logging.info("Saving rule to file: " + outfile)
     with open(outfile, "w") as output_file:
         output_file.write(json_str)
-
