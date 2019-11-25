@@ -1,6 +1,7 @@
 from kafka import KafkaConsumer
 from requests.auth import HTTPBasicAuth
 import json
+import re
 import requests
 import logging
 from defusedxml.minidom import parseString
@@ -342,9 +343,9 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
                 c["name"] = "\\/" + service + "\\/" + name
 
             if test_emails is None:
-                c["email"] = item.firstChild.nodeValue
+                c[u"email"] = item.firstChild.nodeValue
             else:
-                c["email"] = test_emails[indx % len(test_emails)]
+                c[u"email"] = test_emails[indx % len(test_emails)]
                 indx = indx + 1
 
             contacts.append(c)
@@ -379,8 +380,7 @@ def contacts_to_alerta(contacts, extras, environment=None):
         if environment is not None:
             rule_fields.append(
                 {u"field": u"environment", u"regex": "{0}".format(environment)})
-
-        rule_contacts = [c["email"]]
+        rule_contacts = re.split(";|,", c["email"].replace(" ", ""))
         rule_contacts.extend(extras)
         rule_exclude = True
         rule = {u"name": rule_name, u"fields": rule_fields,
