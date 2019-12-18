@@ -315,7 +315,7 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
 
         if notify_val == 'TRUE' or notify_val == 'Y':
             c = dict()
-            c["type"] = item.parentNode.tagName
+            c[u"type"] = item.parentNode.tagName
 
             service_tags = []
             # Check if name tag exists
@@ -336,16 +336,17 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
                 continue
 
             if len(service_tags) == 0:
-                c["name"] = name_tags[0].firstChild.nodeValue
+                c[u"name"] = name_tags[0].firstChild.nodeValue
             else:
                 name = name_tags[0].firstChild.nodeValue
                 service = service_tags[0].firstChild.nodeValue
-                c["name"] = "\\/" + service + "\\/" + name
+                c[u"name"] = "\\/" + service + "\\/" + name
 
             if test_emails is None:
                 c[u"email"] = item.firstChild.nodeValue
             else:
                 c[u"email"] = test_emails[indx % len(test_emails)]
+                c[u"original_email"] = item.firstChild.nodeValue
                 indx = indx + 1
 
             contacts.append(c)
@@ -359,7 +360,7 @@ def contacts_to_alerta(contacts, extras, environment=None):
     Args:
         contacts: obj. Json representation of contact information
         extras: list(str). List of emails to be added as extra recipients
-        environment: str. Add tenant's environment name to narrow down the email rules (default=None)
+        env: str. Alert environment field to match to. Default is None
 
     Return:
         obj: Json representation of alerta mailer rules
@@ -369,7 +370,7 @@ def contacts_to_alerta(contacts, extras, environment=None):
     for c in contacts:
         rule_name = "rule_" + c["name"]
         if c["name"].startswith("\\/"):
-            # matching item is NOT in the beginning of the resource path
+                # matching item is NOT in the beginning of the resource path
             rule_fields = [{u"field": u"resource",
                             u"regex": "{0}($|\\/)".format(c["name"])}]
         else:
@@ -383,8 +384,16 @@ def contacts_to_alerta(contacts, extras, environment=None):
         rule_contacts = re.split(";|,", c["email"].replace(" ", ""))
         rule_contacts.extend(extras)
         rule_exclude = True
+
         rule = {u"name": rule_name, u"fields": rule_fields,
                 u"contacts": rule_contacts, u"exclude": rule_exclude}
+
+        # Check if contacts have original emails -- used during testing
+        if "original_email" in c:
+            rule_og_contacts = rule_contacts = re.split(
+                ";|,", c["original_email"].replace(" ", ""))
+            rule["original_contacts"] = rule_og_contacts
+
         rules.append(rule)
 
     logging.info("Generated " + str(len(rules)) +
