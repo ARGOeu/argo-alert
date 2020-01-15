@@ -1,7 +1,5 @@
 # Dev/Deployment
-nose
-coverage
-pypi-publisher
+pytest
 kafka-python
 requests>=2.20.0
 defusedxml>=0.5

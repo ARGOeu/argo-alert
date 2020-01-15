@@ -1,6 +1,8 @@
 language: python
-# Target py version 2.7
+# Target py version 3.6
 python:
-  - "2.7"
+  - "3.6"
 
-script: pytest
+script:
+  - pip install -r ./requirements.txt
+  - pytest

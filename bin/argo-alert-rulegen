@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from argparse import ArgumentParser
-from ConfigParser import SafeConfigParser
+from configparser import ConfigParser
 import sys
 import logging
 from argoalert import argoalert
@@ -10,7 +10,7 @@ from argoalert import argoalert
 def main(args=None):
 
     # Init configuration
-    parser = SafeConfigParser()
+    parser = ConfigParser()
     parser.read(args.config)
 
     # Initialize authorization info object
@@ -35,15 +35,13 @@ def main(args=None):
     use_notif_flag = parser.getboolean("gocdb", "use_notifications_flag")
     rule_file = parser.get("alerta", "mail-rules")
     log_level = parser.get("logging", "level")
-    top_req = parser.get("gocdb","top_request")
-    sub_req = parser.get("gocdb","sub_request")
+    top_req = parser.get("gocdb", "top_request")
+    sub_req = parser.get("gocdb", "sub_request")
 
     extra_emails = []
     # Check if configuration has extra emails defined
     if parser.has_option("alerta", "extra-emails"):
-        extra_emails = parser.get("alerta","extra-emails").split(",")
-
-
+        extra_emails = parser.get("alerta", "extra-emails").split(",")
 
     logging.basicConfig(level=log_level)
 
@@ -53,29 +51,30 @@ def main(args=None):
 
     group_notify_flag = use_notif_flag
     if args.group_notify_flag is not None:
-        if args.group_notify_flag.lower() in ('true','yes','y'):
+        if args.group_notify_flag.lower() in ('true', 'yes', 'y'):
             group_notify_flag = True
-        else: 
+        else:
             group_notify_flag = False
 
     environment = None
     if parser.has_option("alerta", "environment"):
-       environment = parser.get("alerta","environment")
-
+        environment = parser.get("alerta", "environment")
 
     # Get site data from gocdb
     top_url = gocdb_api + top_req
     gocdb_site_xml = argoalert.get_gocdb(top_url, auth_info, ca_bundle)
 
     # Convert top-level gocdb xml data to contacts object
-    top_contacts = argoalert.gocdb_to_contacts(gocdb_site_xml, group_notify_flag, test_emails)
+    top_contacts = argoalert.gocdb_to_contacts(
+        gocdb_site_xml, group_notify_flag, test_emails)
 
     # Get sub level contact data from gocdb
     sub_url = gocdb_api + sub_req
     gocdb_service_xml = argoalert.get_gocdb(sub_url, auth_info, ca_bundle)
 
     # Convert sub-level site gocdb xml data to contacts object
-    sub_contacts = argoalert.gocdb_to_contacts(gocdb_service_xml, use_notif_flag, test_emails)
+    sub_contacts = argoalert.gocdb_to_contacts(
+        gocdb_service_xml, use_notif_flag, test_emails)
 
     # merge site and service contacts
     contacts = top_contacts + sub_contacts

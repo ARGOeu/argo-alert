@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from argparse import ArgumentParser
-from ConfigParser import SafeConfigParser
+from configparser import ConfigParser
 import sys
 from argoalert import argoalert
 import logging
@@ -10,7 +10,7 @@ import logging
 def main(args=None):
 
     # Init configuration
-    parser = SafeConfigParser()
+    parser = ConfigParser()
     parser.read(args.config)
 
     kafka_endpoint = parser.get("kafka", "endpoint")
@@ -39,9 +39,11 @@ def main(args=None):
         ui_endpoint = parser.get("alerta", "ui_endpoint")
 
     # create alert options dictionary
-    options = {"timeout": alert_timeout, "group_type": group_type, "report": report, "ui_endpoint": ui_endpoint}
+    options = {"timeout": alert_timeout, "group_type": group_type,
+               "report": report, "ui_endpoint": ui_endpoint}
 
-    argoalert.start_listening(environment, kafka_endpoint, kafka_topic, alerta_endpoint, alerta_token, options)
+    argoalert.start_listening(environment, kafka_endpoint,
+                              kafka_topic, alerta_endpoint, alerta_token, options)
 
 
 if __name__ == "__main__":
