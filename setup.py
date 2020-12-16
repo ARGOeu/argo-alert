@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-__version__ = '0.0.1'
+__version__ = '0.2.1'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -29,5 +29,5 @@ setup(
     author='GRNET',
     install_requires=install_requires,
     dependency_links=dependency_links,
-    author_email='kaggis@gmail.com argo@mailman.egi.eu'
+    author_email='argo@mailman.egi.eu'
 )
