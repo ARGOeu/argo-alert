@@ -4,7 +4,7 @@
         "fields": [
             {"field": "resource", "regex": "^SG_A($|\\/)"}
         ],
-        "contacts": ["sg_a@email.foo"],
+        "contacts": ["sg_a@email.foo", "sg_x@email.foo", "sg_y@email.com"],
         "exclude":true
     },
     {
@@ -12,7 +12,7 @@
         "fields": [
             {"field": "resource", "regex": "^SG_C($|\\/)"}
         ],
-        "contacts": ["sg_c@email.foo"],
+        "contacts": ["sg_c@email.foo", "sg_w@email.foo"],
         "exclude":true
     },
     {

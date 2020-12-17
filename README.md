@@ -137,6 +137,19 @@ of your own email aliases (before using client contact emails) issue:
 The rule list will be generated using the configured client sources but each client
 email will be replaced (using round-robin method) by a test-email (as defined in the cli arg list)
 
+Ingore notification flag for groups (top-level)
+-----------------------------------------------
+For the special case that top level groups have different notification flag requirement the special cli parameter 
+`--group-notification-flag` or `-g` can be used and set to `true` or `false`. 
+For example if config file honors the use of notification flag in general but user needs to turn it of for top level 
+groups, can issue:
+
+    $ argo-alert-rulegen -c /path/to/argo-alert.conf -g false
+
+The rule list will be generated using the configured client sources but each client
+email will be replaced (using round-robin method) by a test-email (as defined in the cli arg list)
+
+
 Run tests
 ---------
 
