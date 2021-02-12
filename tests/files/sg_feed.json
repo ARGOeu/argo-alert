@@ -1,0 +1,35 @@
+[
+    {
+      "Service Description (Alphanumeric and basic punctuation)": "service _a",
+      "URL": "https://service_a.example.foo",
+      "SITENAME-SERVICEGROUP": "SG-A",
+      "Service Unique ID": "sa_01",
+      "COUNTRY_NAME": "Greece",
+      "notification flag?": "Yes",
+      "CONTACT_EMAIL": "contact1@example.foo.bar",
+      "Status ": "Development",
+      "SERVICE_TYPE": "storage"
+    },
+    {
+      "Service Description (Alphanumeric and basic punctuation)": "service _a",
+      "URL": "https://service_b.example.foo",
+      "SITENAME-SERVICEGROUP": "SG-A",
+      "Service Unique ID": "sb_01",
+      "COUNTRY_NAME": "Greece",
+      "notification flag?": "No",
+      "CONTACT_EMAIL": "contact1@example.foo.bar",
+      "Status ": "Development",
+      "SERVICE_TYPE": "db"
+    },
+    {
+      "Service Description (Alphanumeric and basic punctuation)": "service _a",
+      "URL": "https://service_a.exampleb.foo",
+      "SITENAME-SERVICEGROUP": "SG-B",
+      "Service Unique ID": "sa_02",
+      "COUNTRY_NAME": "Greece",
+      "notification flag?": "Yes",
+      "CONTACT_EMAIL": "contact1@example.foo.bar",
+      "Status ": "Development",
+      "SERVICE_TYPE": "storage"
+    }
+  ]

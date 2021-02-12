@@ -354,6 +354,36 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
     return contacts
 
 
+def json_feed_to_contacts(json_feed_data, use_notif_flag, test_emails, group_type):
+    """Transform json feed topology information into alert contacts
+
+    Args:
+        json_feed_data: str. Data in specific json format
+        use_notif_flag: boolean. Examine or not notifications flag when gathering contacts
+        group_type: str. Name of the group that contacts are owners of
+
+    Return:
+        obj: Json representation of contact information
+    """
+    contacts = []
+
+    data = json.loads(json_feed_data)
+    
+    for datum in data:
+        
+        if use_notif_flag == True and datum["notification flag?"].lower() != "yes":
+            pass
+        else:
+            contact = {}
+            contact["type"] = group_type
+            contact["name"] = datum["SITENAME-SERVICEGROUP"]
+            contact["emails"] = datum["CONTACT_EMAIL"]
+            contacts.append(contact)
+
+    return contacts
+
+
+
 def contacts_to_alerta(contacts, extras, environment=None):
     """Transform a contacts json object to alerta's rule json object
 

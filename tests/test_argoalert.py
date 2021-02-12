@@ -97,7 +97,7 @@ class TestArgoAlertMethods(unittest.TestCase):
             # Select contacts using notification flag on
             with open(notify_json_fn, 'r') as json_file:
                 json_data = json_file.read().replace('\n', '')
-                exp_json = json.loads(json_data, encoding='utf-8')
+                exp_json = json.loads(json_data)
 
                 use_notif_flag = True
                 contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, None)
@@ -113,6 +113,42 @@ class TestArgoAlertMethods(unittest.TestCase):
                 contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, None)
 
                 self.assertEqual(contacts, exp_json)
+
+
+     # Test gocdb xml to contacts json transformation
+    def test_json_feed_to_contacts_notify_flag(self):
+
+        json_fn = get_resource_path("./files/sg_feed.json")
+        notify_json_fn = get_resource_path("./files/sg_feed_contacts.json")
+        all_json_fn = get_resource_path("./files/sg_feed_contacts_all.json")
+
+        with open(json_fn, 'r') as json_file:
+            json_og_data = json.load(json_file)
+            
+            
+            # Select contacts using notification flag on
+            with open(notify_json_fn, 'r') as json_file:
+                json_data = json_file.read().replace('\n', '')
+                exp_json = json.loads(json_data)
+
+                use_notif_flag = True
+                contacts = argoalert.json_feed_to_contacts(json.dumps(json_og_data), use_notif_flag, None, "SERVICE_GROUP")
+
+                print(contacts)
+                print(exp_json)
+
+                self.assertEqual(contacts, exp_json)
+
+            # Select all contacts
+            with open(all_json_fn, 'r') as json_file:
+                json_data = json_file.read().replace('\n', '')
+                exp_json = json.loads(json_data)
+
+                use_notif_flag = False
+                contacts = argoalert.json_feed_to_contacts(json.dumps(json_og_data), use_notif_flag, None, "SERVICE_GROUP")
+
+                self.assertEqual(contacts, exp_json)
+
 
     # Test gocdb xml to contacts json transformation
     def test_site_gocdb_to_contacts_notify_flag(self):
