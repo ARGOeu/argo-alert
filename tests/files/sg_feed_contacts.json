@@ -1,0 +1,12 @@
+[
+    {
+      "type": "SERVICE_GROUP",
+      "name": "SG-A",
+      "emails": "contact1@example.foo.bar"
+    },
+    {
+      "type": "SERVICE_GROUP",
+      "name": "SG-B",
+      "emails": "contact1@example.foo.bar"
+    }
+  ]
