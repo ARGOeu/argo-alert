@@ -1,3 +1,7 @@
+[feed]
+# Feed type for contacts simple / gocdb
+feed_type=gocdb
+
 [gocdb]
 # auth_method to be used when contacting gocdb api: basic-auth or cert
 auth_method=cert
@@ -21,6 +25,12 @@ use_notifications_flag=True
 top_request=/gocdbpi/public/?method=get_site
 # request path for gocdb to retrieve sub-level items
 sub_request=/gocdbpi/public/?method=get_service
+
+[simple]
+# endpoint for simple feed
+endpoint=https://
+# format json or csv
+format=json
 
 [kafka]
 # kafka endpoint
