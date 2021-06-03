@@ -13,6 +13,9 @@ def main(args=None):
     parser = ConfigParser()
     parser.read(args.config)
 
+    feed_type = parser.get("feed","feed_type")
+    
+
     # Initialize authorization info object
     auth_info = dict()
 
