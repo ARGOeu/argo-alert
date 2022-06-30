@@ -13,80 +13,127 @@ def main(args=None):
     parser = ConfigParser()
     parser.read(args.config)
 
-    feed_type = parser.get("feed","feed_type")
-    
+    feed_type = parser.get("feed", "feed_type")
 
-    # Initialize authorization info object
-    auth_info = dict()
-
-    auth_method = parser.get("gocdb", "auth_method")
-    if auth_method == "cert":
-        auth_info["method"] = "cert"
-
-        auth_info["cert"] = parser.get("gocdb", "hostcert")
-        auth_info["key"] = parser.get("gocdb", "hostkey")
-    elif auth_method == "basic":
-        auth_info["method"] = "basic"
-        auth_info["user"] = parser.get("gocdb", "username")
-        auth_info["pass"] = parser.get("gocdb", "password")
-
-    gocdb_api = parser.get("gocdb", "api")
-    verify = parser.getboolean("gocdb", "verify")
-    ca_bundle = None
-    if verify:
-        ca_bundle = parser.get("gocdb", "cabundle")
-    use_notif_flag = parser.getboolean("gocdb", "use_notifications_flag")
-    rule_file = parser.get("alerta", "mail-rules")
     log_level = parser.get("logging", "level")
-    top_req = parser.get("gocdb", "top_request")
-    sub_req = parser.get("gocdb", "sub_request")
-
-    extra_emails = []
-    # Check if configuration has extra emails defined
-    if parser.has_option("alerta", "extra-emails"):
-        extra_emails = parser.get("alerta", "extra-emails").split(",")
-
     logging.basicConfig(level=log_level)
 
-    test_emails = None
-    if args.test_emails is not None:
-        test_emails = args.test_emails.split(',')
+    if feed_type == "argo-web-api":
 
-    group_notify_flag = use_notif_flag
-    if args.group_notify_flag is not None:
-        if args.group_notify_flag.lower() in ('true', 'yes', 'y'):
-            group_notify_flag = True
-        else:
-            group_notify_flag = False
+        api_endpoint = parser.get("argo-web-api", "endpoint")
+        api_access_key = parser.get("argo-web-api", "access_key")
+        api_verify = parser.getboolean("argo-web-api", "verify")
+        api_use_notifications_flag = parser.getboolean(
+            "argo-web-api", "use_notifications_flag")
+        rule_file = parser.get("alerta", "mail-rules")
+        environment = None
+        if parser.has_option("alerta", "environment"):
+            environment = parser.get("alerta", "environment")
 
-    environment = None
-    if parser.has_option("alerta", "environment"):
-        environment = parser.get("alerta", "environment")
+        extra_emails = []
+        # Check if configuration has extra emails defined
+        if parser.has_option("alerta", "extra-emails"):
+            extra_value = parser.get("alerta", "extra-emails")
+            if extra_value:
+                extra_emails = extra_value.split(",")
 
-    # Get site data from gocdb
-    top_url = gocdb_api + top_req
-    gocdb_site_xml = argoalert.get_gocdb(top_url, auth_info, ca_bundle)
+        test_emails = None
+        if args.test_emails is not None:
+            test_emails = args.test_emails.split(',')
 
-    # Convert top-level gocdb xml data to contacts object
-    top_contacts = argoalert.gocdb_to_contacts(
-        gocdb_site_xml, group_notify_flag, test_emails)
+        # get endpoint topology
+        endpoint_topology_data = argoalert.get_argo_web_api_data(
+            api_endpoint, api_access_key, api_verify, "endpoints")
 
-    # Get sub level contact data from gocdb
-    sub_url = gocdb_api + sub_req
-    gocdb_service_xml = argoalert.get_gocdb(sub_url, auth_info, ca_bundle)
+        # get group topology
+        group_topology_data = argoalert.get_argo_web_api_data(
+            api_endpoint, api_access_key, api_verify, "groups")
 
-    # Convert sub-level site gocdb xml data to contacts object
-    sub_contacts = argoalert.gocdb_to_contacts(
-        gocdb_service_xml, use_notif_flag, test_emails)
+        contacts = argoalert.argo_web_api_to_contacts(
+            endpoint_topology_data, group_topology_data, api_use_notifications_flag, test_emails)
 
-    # merge site and service contacts
-    contacts = top_contacts + sub_contacts
+        
 
-    # Convert contacts to alerta mail rules
-    rules = argoalert.contacts_to_alerta(contacts, extra_emails, environment)
+         # Convert contacts to alerta mail rules
+        rules = argoalert.contacts_to_alerta(
+            contacts, extra_emails, environment)
 
-    # Save rules to alerta mailer rule file
-    argoalert.write_rules(rules, rule_file)
+        # Save rules to alerta mailer rule file
+        argoalert.write_rules(rules, rule_file)
+
+    # Handle old cases of gocdb and csv/json
+    else:
+
+        # Initialize authorization info object
+        auth_info = dict()
+
+        auth_method = parser.get("gocdb", "auth_method")
+        if auth_method == "cert":
+            auth_info["method"] = "cert"
+
+            auth_info["cert"] = parser.get("gocdb", "hostcert")
+            auth_info["key"] = parser.get("gocdb", "hostkey")
+        elif auth_method == "basic":
+            auth_info["method"] = "basic"
+            auth_info["user"] = parser.get("gocdb", "username")
+            auth_info["pass"] = parser.get("gocdb", "password")
+
+        gocdb_api = parser.get("gocdb", "api")
+        verify = parser.getboolean("gocdb", "verify")
+        ca_bundle = None
+        if verify:
+            ca_bundle = parser.get("gocdb", "cabundle")
+        use_notif_flag = parser.getboolean("gocdb", "use_notifications_flag")
+        rule_file = parser.get("alerta", "mail-rules")
+
+        top_req = parser.get("gocdb", "top_request")
+        sub_req = parser.get("gocdb", "sub_request")
+
+        extra_emails = []
+        # Check if configuration has extra emails defined
+        if parser.has_option("alerta", "extra-emails"):
+            extra_emails = parser.get("alerta", "extra-emails").split(",")
+
+        test_emails = None
+        if args.test_emails is not None:
+            test_emails = args.test_emails.split(',')
+
+        group_notify_flag = use_notif_flag
+        if args.group_notify_flag is not None:
+            if args.group_notify_flag.lower() in ('true', 'yes', 'y'):
+                group_notify_flag = True
+            else:
+                group_notify_flag = False
+
+        environment = None
+        if parser.has_option("alerta", "environment"):
+            environment = parser.get("alerta", "environment")
+
+        # Get site data from gocdb
+        top_url = gocdb_api + top_req
+        gocdb_site_xml = argoalert.get_gocdb(top_url, auth_info, ca_bundle)
+
+        # Convert top-level gocdb xml data to contacts object
+        top_contacts = argoalert.gocdb_to_contacts(
+            gocdb_site_xml, group_notify_flag, test_emails)
+
+        # Get sub level contact data from gocdb
+        sub_url = gocdb_api + sub_req
+        gocdb_service_xml = argoalert.get_gocdb(sub_url, auth_info, ca_bundle)
+
+        # Convert sub-level site gocdb xml data to contacts object
+        sub_contacts = argoalert.gocdb_to_contacts(
+            gocdb_service_xml, use_notif_flag, test_emails)
+
+        # merge site and service contacts
+        contacts = top_contacts + sub_contacts
+
+        # Convert contacts to alerta mail rules
+        rules = argoalert.contacts_to_alerta(
+            contacts, extra_emails, environment)
+
+        # Save rules to alerta mailer rule file
+        argoalert.write_rules(rules, rule_file)
 
 
 if __name__ == "__main__":

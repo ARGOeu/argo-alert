@@ -4,6 +4,8 @@ from argoalert import argoalert
 import os
 
 
+
+
 # establish path for the resource
 def get_resource_path(relative_path):
     return os.path.join(os.path.dirname(__file__), relative_path)
@@ -101,7 +103,6 @@ class TestArgoAlertMethods(unittest.TestCase):
 
                 use_notif_flag = True
                 contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, None)
-
                 self.assertEqual(contacts, exp_json)
 
             # Select all contacts
@@ -179,6 +180,25 @@ class TestArgoAlertMethods(unittest.TestCase):
                 contacts = argoalert.gocdb_to_contacts(xml_data, use_notif_flag, None)
 
                 self.assertEqual(contacts, exp_json)
+
+    # Test api contacts to alerta transformation
+    def test_api_contacts_to_alerta(self):
+
+        apifn = get_resource_path("./files/api_contacts.json")
+        rfn = get_resource_path("./files/api_rules.json")
+
+        with open(rfn, 'r') as rule_json:
+            rule_data = rule_json.read().replace('\n', '')
+            exp_json = json.loads(rule_data)
+
+            with open(apifn, 'r') as contact_json:
+                contact_data = contact_json.read().replace('\n', '')
+                contacts = json.loads(contact_data)
+                rules = argoalert.contacts_to_alerta(contacts, [])
+                rules_out = json.dumps(rules, sort_keys=True)
+                exp_out = json.dumps(exp_json, sort_keys=True)
+                self.assertEqual(rules_out, exp_out)
+
 
     # Test servicegroup contacts to alerta transformation
     def test_sg_contacts_to_alerta(self):
@@ -280,6 +300,29 @@ class TestArgoAlertMethods(unittest.TestCase):
                 rules = argoalert.contacts_to_alerta(contacts, extra_emails)
 
                 self.assertEqual(exp_json, rules)
+
+    # Test argowebapi contacts
+    def test_argo_web_api(self):
+        endpoint_data_fn = get_resource_path("./files/argowebapi_endpoint_data.json")
+        group_data_fn = get_resource_path("./files/argowebapi_group_data.json")
+        api_contacts_fn = get_resource_path("./files/api_contacts.json")
+
+        with open(endpoint_data_fn, 'r') as endpoint_txt:
+            endpoint_clean = endpoint_txt.read().replace('\n', '')
+            endpoint_data = json.loads(endpoint_clean)
+
+            with open(group_data_fn, 'r') as group_txt:
+                group_clean = group_txt.read().replace('\n', '')
+                group_data = json.loads(group_clean)
+
+                with open(api_contacts_fn, 'r') as api_contacts_txt:
+                    api_contacts_clean = api_contacts_txt.read().replace('\n', '')
+                    api_contacts_data = json.loads(api_contacts_clean)
+
+                    contacts = argoalert.argo_web_api_to_contacts(endpoint_data,group_data,True)
+                    print(contacts)
+                    self.assertEqual(contacts,api_contacts_data)
+
 
 
 
