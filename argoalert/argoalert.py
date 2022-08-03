@@ -179,7 +179,7 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
         resource = group
         text = "[ {0} ] - {1} {2} is {3}".format(
             environment.upper(), grouptype.capitalize(), group, status.upper())
-        if ui_endpoint is not "":
+        if ui_endpoint != "":
             attributes["_alert_url"] = ui_group_url(
                 ui_endpoint, report, ts_monitored, grouptype, group, environment)
 
@@ -194,7 +194,7 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
         resource = service + "/" + hostname
         text = "[ {0} ] - Endpoint {1}/{2} is {3}".format(
             environment.upper(), hostname, service, status.upper())
-        if ui_endpoint is not "":
+        if ui_endpoint != "":
             attributes["_alert_url"] = ui_endpoint_url(
                 ui_endpoint, report, ts_monitored, grouptype, group, service, hostname, environment)
 
@@ -341,18 +341,87 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
                 name = name_tags[0].firstChild.nodeValue
                 service = service_tags[0].firstChild.nodeValue
                 c["name"] = "\\/" + service + "\\/" + name
-
+            
             if test_emails is None:
-                c["email"] = item.firstChild.nodeValue
+                c["emails"] = item.firstChild.nodeValue
             else:
-                c["email"] = test_emails[indx % len(test_emails)]
+                c["emails"] = test_emails[indx % len(test_emails)]
                 c["original_email"] = item.firstChild.nodeValue
                 indx = indx + 1
-
+            
             contacts.append(c)
 
     return contacts
 
+
+
+def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_emails=None):
+    """Contact argo-web-api endpoint and retrieve contacts for topology endpoints and groups
+
+    Args:
+        api_endpoint (string): endpoint for argo-web-api instance
+        access_key (string): argo-web-api access key
+        verify (bool, optional): Set https verification on/off. Defaults to True.
+        test_emails (string, optional): Set test emails for notifications. Defaults to None
+
+    Returns:
+        obj: list containing contacts
+    """
+
+    get_notif_always = not use_notif
+
+
+    
+    contacts = []
+    subgroup_types = {}
+    # iterate over endpoints but also get subgroup types
+    for indx, endpoint in enumerate(endpoint_data):
+        subgroup_types[endpoint["group"]]=endpoint["type"]
+        if "notifications" in endpoint:
+            if get_notif_always or (endpoint["notifications"]["enabled"] == True):
+                name = "{}\\/{}".format(endpoint["service"].replace(".","\\."),endpoint["hostname"].replace(".","\\."))
+                if not test_emails:
+                    contact = ";".join(endpoint["notifications"]["contacts"])
+                else:
+                    contact  = test_emails[indx % len(test_emails)]
+                contacts.append({"name":name, "emails":contact, "type":endpoint["type"]})
+    # iterate now over group data
+    for indx, group in enumerate(group_data):
+        if "notifications" not in group:
+            continue
+        if get_notif_always or (group["notifications"]["enabled"] == True):
+            name = group["subgroup"]
+            if name not in subgroup_types:
+                continue
+            subgroup_type = subgroup_types[name]
+            if not test_emails:
+                contact = ";".join(endpoint["notifications"]["contacts"])
+            else:
+                contact  = test_emails[indx % len(test_emails)]
+            contacts.append({"name":name, "emails":contact, "type":subgroup_type})
+    return contacts
+
+
+def get_argo_web_api_data(api_endpoint, access_key, verify=True, topology_type="endpoints"):
+     # get endpoint topology
+    
+    api_url = api_endpoint
+    if topology_type == "endpoints":
+        api_url = api_url + "/api/v2/topology/endpoints"
+    else:
+        api_url = api_url + "/api/v2/topology/groups"
+
+    logging.info("Requesting topology of {}  from argo-web-api: {}".format(topology_type,api_url))
+    r = requests.get(api_url, headers={
+                     'x-api-key': access_key, 'Accept': 'application/json'}, verify=verify)
+    
+    if r.status_code == 200:
+        logging.info("Argo-web-api topology data retrieved successfully")
+        return json.loads(r.text)["data"]
+    else:
+        logging.error("Error during argo-web-api {} topology fetch. Status code: {}".format(topology_type, r.status_code))
+        logging.error(r.text)
+        return []
 
 def json_feed_to_contacts(json_feed_data, use_notif_flag, test_emails, group_type):
     """Transform json feed topology information into alert contacts
@@ -368,9 +437,9 @@ def json_feed_to_contacts(json_feed_data, use_notif_flag, test_emails, group_typ
     contacts = []
 
     data = json.loads(json_feed_data)
-    
+
     for datum in data:
-        
+
         if use_notif_flag == True and datum["notification flag?"].lower() != "yes":
             pass
         else:
@@ -383,8 +452,7 @@ def json_feed_to_contacts(json_feed_data, use_notif_flag, test_emails, group_typ
     return contacts
 
 
-
-def contacts_to_alerta(contacts, extras, environment=None):
+def contacts_to_alerta(contacts, extras=None, environment=None):
     """Transform a contacts json object to alerta's rule json object
 
     Args:
@@ -400,7 +468,7 @@ def contacts_to_alerta(contacts, extras, environment=None):
     for c in contacts:
         rule_name = "rule_" + c["name"]
         if c["name"].startswith("\\/"):
-                # matching item is NOT in the beginning of the resource path
+            # matching item is NOT in the beginning of the resource path
             rule_fields = [{"field": "resource",
                             "regex": "{0}($|\\/)".format(c["name"])}]
         else:
@@ -408,15 +476,19 @@ def contacts_to_alerta(contacts, extras, environment=None):
             rule_fields = [{"field": "resource",
                             "regex": "^{0}($|\\/)".format(c["name"])}]
 
-        if environment is not None:
+        if environment != None:
             rule_fields.append(
                 {"field": "environment", "regex": "{0}".format(environment)})
-        rule_contacts = re.split(";|,", c["email"].replace(" ", ""))
-        rule_contacts.extend(extras)
+        rule_contacts = re.split(";|,", c["emails"].replace(" ", ""))
+        
+        if extras:
+            rule_contacts.extend(extras)
         rule_exclude = True
 
         rule = {"name": rule_name, "fields": rule_fields,
                 "contacts": rule_contacts, "exclude": rule_exclude}
+        
+        
 
         # Check if contacts have original emails -- used during testing
         if "original_email" in c:
@@ -445,7 +517,7 @@ def get_gocdb(api_url, auth_info, ca_bundle):
     """
 
     verify = False
-    if ca_bundle is not None:
+    if ca_bundle != None:
         verify = ca_bundle
 
     logging.info("Requesting data from gocdb api: " + api_url)
@@ -463,6 +535,9 @@ def get_gocdb(api_url, auth_info, ca_bundle):
         return text
 
     return ""
+
+
+
 
 
 def write_rules(rules, outfile):

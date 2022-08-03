@@ -1,0 +1,56 @@
+[
+    {
+      "contacts": [
+        "hello1@example.foo",
+        "hello2@example.foo"
+      ],
+      "exclude": true,
+      "fields": [
+        {
+          "field": "resource",
+          "regex": "^service1\\/host\\.sg_a\\.example\\.foo($|\\/)"
+        }
+      ],
+      "name": "rule_service1\\/host\\.sg_a\\.example\\.foo"
+    },
+    {
+      "contacts": [
+        "hello3@example.foo",
+        "hello4@example.foo"
+      ],
+      "exclude": true,
+      "fields": [
+        {
+          "field": "resource",
+          "regex": "^service2\\/host\\.sg_b\\.example\\.foo($|\\/)"
+        }
+      ],
+      "name": "rule_service2\\/host\\.sg_b\\.example\\.foo"
+    },
+    {
+      "contacts": [
+        "hello5@example.foo"
+      ],
+      "exclude": true,
+      "fields": [
+        {
+          "field": "resource",
+          "regex": "^SG_A($|\\/)"
+        }
+      ],
+      "name": "rule_SG_A"
+    },
+    {
+      "contacts": [
+        "hello5@example.foo"
+      ],
+      "exclude": true,
+      "fields": [
+        {
+          "field": "resource",
+          "regex": "^SG_B($|\\/)"
+        }
+      ],
+      "name": "rule_SG_B"
+    }
+  ]

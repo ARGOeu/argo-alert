@@ -2,21 +2,21 @@
   {
     "type": "SERVICE_GROUP",
     "name": "SG_A",
-    "email": "sg_a@email.foo,sg_x@email.foo   ; sg_y@email.com   "
+    "emails": "sg_a@email.foo,sg_x@email.foo   ; sg_y@email.com   "
   },
   {
     "type": "SERVICE_GROUP",
     "name": "SG_B",
-    "email": "sg_b@email.foo"
+    "emails": "sg_b@email.foo"
   },
   {
     "type": "SERVICE_GROUP",
     "name": "SG_C",
-    "email": "sg_c@email.foo;sg_w@email.foo"
+    "emails": "sg_c@email.foo;sg_w@email.foo"
   },
   {
     "type": "SERVICE_GROUP",
     "name": "SG_D",
-    "email": "sg_d@email.foo"
+    "emails": "sg_d@email.foo"
   }
 ]
