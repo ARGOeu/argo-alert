@@ -1,7 +1,7 @@
 argo-alert
 ===============================
 
-version number: 0.0.1
+version number: 1.0.0
 author: GRNET
 
 Overview
@@ -11,8 +11,7 @@ Streaming Publisher of argo-streaming status events as alerts to an alerta servi
 Alerta mail configuration rules from gocdb contact data.
 
 Argo streaming-service produces status events with the following schema:
-```
-json
+```json
 {
   "endpoint_group":"SITE-A"
   "service":"SERVICE-A",
