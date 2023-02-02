@@ -1,0 +1,51 @@
+[
+    {
+        "date": "2022-30-06",
+        "group": "TOP",
+        "type": "PROJECT",
+        "subgroup": "SG_A",
+        "notifications": {
+            "contacts": [
+                "top_contact1@example.foo"
+            ],
+            "enabled": true
+        },
+        "tags": {
+            "monitored": "1",
+            "scope": "Top"
+        }
+    },
+    {
+        "date": "2022-30-06",
+        "group": "TOP",
+        "type": "PROJECT",
+        "subgroup": "SG_B",
+        "notifications": {
+            "contacts": [
+                "top_contact2@example.foo"
+            ],
+            "enabled": true
+        },
+        "tags": {
+            "monitored": "1",
+            "scope": "Top"
+        }
+    },
+    {
+        "date": "2022-30-06",
+        "group": "TOP",
+        "type": "PROJECT",
+        "subgroup": "SG_C",
+        "notifications": {
+            "contacts": [
+                "top_contact3@example.foo"
+            ],
+            "enabled": false
+        },
+        "tags": {
+            "monitored": "1",
+            "scope": "Top"
+        }
+    }
+   
+]

@@ -1,5 +1,20 @@
+[feed]
+# Feed type for contacts simple / gocdb / argo-web-api
+feed_type=argo-web-api
+
+[argo-web-api]
+# argo web api endpoint to connect to 
+endpoint=https://api.devel.example.foo
+# argo web api access token  
+access_key=s3cr3tt0ke3n
+# verify http requests
+verify=False 
+# select to honor notifications flag in rules or not 
+use_notifications_flag=True 
+
+
 [gocdb]
-# auth_method to be used when contacting gocdb api: basic-auth or cert
+# auth_method to be used when contacting gocdb api: basic-auth or cert or apikey
 auth_method=cert
 # username for basic auth
 username=
@@ -21,6 +36,12 @@ use_notifications_flag=True
 top_request=/gocdbpi/public/?method=get_site
 # request path for gocdb to retrieve sub-level items
 sub_request=/gocdbpi/public/?method=get_service
+
+[simple]
+# endpoint for simple feed
+endpoint=https://
+# format json or csv
+format=json
 
 [kafka]
 # kafka endpoint
