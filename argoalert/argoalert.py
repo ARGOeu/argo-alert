@@ -354,13 +354,36 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
     return contacts
 
 
+def gen_endpoint_contacts_from_groups(group_data, endpoint_data):
+    """Parse both endpoint and group topology data and refactor endpoint data using
+       notification information from groups
+
+    Args:
+        endpoint_data (obj): list of endpoint topology data
+        grou_data (string): list of group topology data
+
+    Returns:
+        obj: list containing endpoint topology data with notification detailes borrowed from groups
+    """
+    group_index = {}
+    gen_endpoints = []
+    for item in group_data:
+        group_index[item["subgroup"]] = item["notifications"]
+    for item in endpoint_data:
+        endpoint_group = item["group"]
+       
+        if endpoint_group in group_index:
+            item["notifications"] = group_index[endpoint_group]
+            gen_endpoints.append(item)
+    
+    return gen_endpoints
 
 def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_emails=None):
     """Contact argo-web-api endpoint and retrieve contacts for topology endpoints and groups
 
     Args:
-        api_endpoint (string): endpoint for argo-web-api instance
-        access_key (string): argo-web-api access key
+        endpoint_data (obj): list of endpoint topology data
+        grou_data (string): list of group topology data
         verify (bool, optional): Set https verification on/off. Defaults to True.
         test_emails (string, optional): Set test emails for notifications. Defaults to None
 

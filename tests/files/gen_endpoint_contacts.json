@@ -1,0 +1,59 @@
+[
+    {
+      "date": "2022-06-30",
+      "group": "SG_A",
+      "type": "SERVICEGROUPS",
+      "service": "service1",
+      "hostname": "host.sg_a.example.foo",
+      "notifications": {
+        "contacts": [
+          "top_contact1@example.foo"
+        ],
+        "enabled": true
+      },
+      "tags": {
+        "info_ID": "33",
+        "monitored": "1",
+        "production": "1",
+        "scope": "Scope1"
+      }
+    },
+    {
+      "date": "2022-06-30",
+      "group": "SG_B",
+      "type": "SERVICEGROUPS",
+      "service": "service2",
+      "hostname": "host.sg_b.example.foo",
+      "notifications": {
+        "contacts": [
+          "top_contact2@example.foo"
+        ],
+        "enabled": true
+      },
+      "tags": {
+        "info_ID": "34",
+        "monitored": "1",
+        "production": "1",
+        "scope": "Scope1"
+      }
+    },
+    {
+      "date": "2022-06-30",
+      "group": "SG_C",
+      "type": "SERVICEGROUPS",
+      "service": "service3",
+      "hostname": "host.sg_c.example.foo",
+      "notifications": {
+        "contacts": [
+          "top_contact3@example.foo"
+        ],
+        "enabled": false
+      },
+      "tags": {
+        "info_ID": "55",
+        "monitored": "1",
+        "production": "1",
+        "scope": "Scope1"
+      }
+    }
+  ]

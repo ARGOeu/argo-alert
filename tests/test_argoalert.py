@@ -324,5 +324,24 @@ class TestArgoAlertMethods(unittest.TestCase):
                     self.assertEqual(contacts,api_contacts_data)
 
 
+    def test_gen_group_contacts(self):
+        endpoint_data_fn = get_resource_path("./files/argowebapi_endpoint_data.json")
+        group_data_fn = get_resource_path("./files/argowebapi_group_data.json")
+        gen_contacts_fn = get_resource_path("./files/gen_endpoint_contacts.json")
+
+        with open(endpoint_data_fn, 'r') as endpoint_txt:
+            endpoint_clean = endpoint_txt.read().replace('\n', '')
+            endpoint_data = json.loads(endpoint_clean)
+
+            with open(group_data_fn, 'r') as group_txt:
+                group_clean = group_txt.read().replace('\n', '')
+                group_data = json.loads(group_clean)
+
+                with open(gen_contacts_fn, 'r') as gen_contacts_txt:
+                    gen_contacts_clean = gen_contacts_txt.read().replace('\n', '')
+                    gen_contacts_data = json.loads(gen_contacts_clean)
+
+                    gen_contacts = argoalert.gen_endpoint_contacts_from_groups(group_data, endpoint_data)
+                    self.assertEqual(gen_contacts,gen_contacts_data)
 
 
