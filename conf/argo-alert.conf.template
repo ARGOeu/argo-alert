@@ -65,6 +65,8 @@ alert-timeout = 3600
 # group type of the tenant's top level group used in alert generation and mail template
 group-type = Group
 report = Critical
+# generate endpoint notifications based on groups
+endpoint-contacts-from-groups = False
 
 [logging]
 # loggin level
