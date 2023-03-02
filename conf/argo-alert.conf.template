@@ -67,6 +67,8 @@ group-type = Group
 report = Critical
 # generate endpoint notifications based on groups
 endpoint-contacts-from-groups = False
+# don't generate group contacts
+skip-group-contacts = False
 
 [logging]
 # loggin level

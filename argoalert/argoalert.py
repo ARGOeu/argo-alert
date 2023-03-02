@@ -401,7 +401,8 @@ def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_em
     for indx, endpoint in enumerate(endpoint_data):
         subgroup_types[endpoint["group"]]=endpoint["type"]
         if "notifications" in endpoint:
-            if get_notif_always or (endpoint["notifications"]["enabled"] == True):
+            # if notifications is empty
+            if get_notif_always or ("enabled" in endpoint["notifications"] and endpoint["notifications"]["enabled"] == True):
                 name = "{}\\/{}".format(endpoint["service"].replace(".","\\."),endpoint["hostname"].replace(".","\\."))
                 if not test_emails:
                     contact = ";".join(endpoint["notifications"]["contacts"])
@@ -412,7 +413,8 @@ def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_em
     for indx, group in enumerate(group_data):
         if "notifications" not in group:
             continue
-        if get_notif_always or (group["notifications"]["enabled"] == True):
+        
+        if get_notif_always or ("enabled" in group["notifications"] and group["notifications"]["enabled"] == True):
             name = group["subgroup"]
             if name not in subgroup_types:
                 continue
