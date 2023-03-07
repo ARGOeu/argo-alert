@@ -354,13 +354,14 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
     return contacts
 
 
-def gen_endpoint_contacts_from_groups(group_data, endpoint_data):
+def gen_endpoint_contacts_from_groups(group_data, endpoint_data, group_filter=None):
     """Parse both endpoint and group topology data and refactor endpoint data using
        notification information from groups
 
     Args:
         endpoint_data (obj): list of endpoint topology data
-        grou_data (string): list of group topology data
+        group_data (string): list of group topology data
+        group_filter (string): keep only groups of a specific type e.g. SITES
 
     Returns:
         obj: list containing endpoint topology data with notification detailes borrowed from groups
@@ -368,14 +369,17 @@ def gen_endpoint_contacts_from_groups(group_data, endpoint_data):
     group_index = {}
     gen_endpoints = []
     for item in group_data:
-        group_index[item["subgroup"]] = item["notifications"]
+            group_index[item["subgroup"]] = item["notifications"]
+
     for item in endpoint_data:
         endpoint_group = item["group"]
-       
+        if group_filter and group_filter != item["type"]:
+            # skip endpoint if we have enabled a group filter and its group type doesn't match
+            continue
         if endpoint_group in group_index:
             item["notifications"] = group_index[endpoint_group]
             gen_endpoints.append(item)
-    
+            
     return gen_endpoints
 
 def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_emails=None):
@@ -403,12 +407,27 @@ def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_em
         if "notifications" in endpoint:
             # if notifications is empty
             if get_notif_always or ("enabled" in endpoint["notifications"] and endpoint["notifications"]["enabled"] == True):
-                name = "{}\\/{}".format(endpoint["service"].replace(".","\\."),endpoint["hostname"].replace(".","\\."))
+                name = "{}\\/{}".format(endpoint["service"].replace(".","\\."), endpoint["hostname"].replace(".","\\."))
+                contact = ""
                 if not test_emails:
-                    contact = ";".join(endpoint["notifications"]["contacts"])
+                    if "contacts" in endpoint["notifications"]:
+                        contact = ";".join(endpoint["notifications"]["contacts"])
                 else:
-                    contact  = test_emails[indx % len(test_emails)]
-                contacts.append({"name":name, "emails":contact, "type":endpoint["type"]})
+                    contact = test_emails[indx % len(test_emails)]
+                if contact != "":
+                    contacts.append({"name": name, "emails": contact, "type": "endpoint"})
+    
+    # consolidate rules with duplicate names (same endpoint belonging to multiple groups)
+    contact_index = {}
+    for contact in contacts:
+        if contact["name"] in contact_index:
+            # append emails to existing contact rule
+            contact_index[contact["name"]]["emails"] = contact_index[contact["name"]]["emails"] + ";" + contact["emails"]
+        else:
+            contact_index[contact["name"]] = contact
+
+    contacts = list(contact_index.values())
+
     # iterate now over group data
     for indx, group in enumerate(group_data):
         if "notifications" not in group:
@@ -419,11 +438,15 @@ def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_em
             if name not in subgroup_types:
                 continue
             subgroup_type = subgroup_types[name]
+            contact = ""
             if not test_emails:
-                contact = ";".join(endpoint["notifications"]["contacts"])
+                if "contacts" in group["notifications"]:
+                    contact = ";".join(group["notifications"]["contacts"])
             else:
                 contact  = test_emails[indx % len(test_emails)]
-            contacts.append({"name":name, "emails":contact, "type":subgroup_type})
+            if contact != "":
+                contacts.append({"name":name, "emails":contact, "type":subgroup_type})
+                
     return contacts
 
 
@@ -560,10 +583,6 @@ def get_gocdb(api_url, auth_info, ca_bundle):
         return text
 
     return ""
-
-
-
-
 
 def write_rules(rules, outfile):
     """Writes alerta email rules to a specific output file
