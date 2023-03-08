@@ -66,7 +66,9 @@ alert-timeout = 3600
 group-type = Group
 report = Critical
 # generate endpoint notifications based on groups
-endpoint-contacts-from-groups = False
+gen-endpoint-contacts-from-groups = False
+# Optional: when generating endpoint contacts from groups filter by group type
+# gen-endpoint-contacts-group-filter = SITES 
 # don't generate group contacts
 skip-group-contacts = False
 

@@ -55,24 +55,5 @@
           "production": "1",
           "scope": "Scope1"
       }
-  },
-  {
-      "date": "2022-06-30",
-      "group": "SG_X",
-      "type": "SITES",
-      "service": "service1",
-      "hostname": "host.sg_a.example.foo",
-      "notifications": {
-          "contacts": [
-              "top_contact8@example.foo"
-          ],
-          "enabled": true
-      },
-      "tags": {
-          "info_ID": "55",
-          "monitored": "1",
-          "production": "1",
-          "scope": "Scope1"
-      }
   }
 ]

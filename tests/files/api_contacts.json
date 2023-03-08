@@ -1,22 +1,27 @@
 [
-    {
+  {
       "name": "service1\\/host\\.sg_a\\.example\\.foo",
-      "emails": "hello1@example.foo;hello2@example.foo",
-      "type": "SERVICEGROUPS"
-    },
-    {
+      "emails": "hello1@example.foo;hello2@example.foo;hello8@example.foo",
+      "type": "endpoint"
+  },
+  {
       "name": "service2\\/host\\.sg_b\\.example\\.foo",
       "emails": "hello3@example.foo;hello4@example.foo",
-      "type": "SERVICEGROUPS"
-    },
-    {
+      "type": "endpoint"
+  },
+  {
       "name": "SG_A",
-      "emails": "hello5@example.foo",
+      "emails": "top_contact1@example.foo",
       "type": "SERVICEGROUPS"
-    },
-    {
+  },
+  {
       "name": "SG_B",
-      "emails": "hello5@example.foo",
+      "emails": "top_contact2@example.foo",
       "type": "SERVICEGROUPS"
-    }
-  ]
+  },
+  {
+      "name": "SG_X",
+      "emails": "top_contact8@example.foo",
+      "type": "SITES"
+  }
+]

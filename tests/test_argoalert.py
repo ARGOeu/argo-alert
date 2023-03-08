@@ -135,9 +135,6 @@ class TestArgoAlertMethods(unittest.TestCase):
                 use_notif_flag = True
                 contacts = argoalert.json_feed_to_contacts(json.dumps(json_og_data), use_notif_flag, None, "SERVICE_GROUP")
 
-                print(contacts)
-                print(exp_json)
-
                 self.assertEqual(contacts, exp_json)
 
             # Select all contacts
@@ -197,6 +194,7 @@ class TestArgoAlertMethods(unittest.TestCase):
                 rules = argoalert.contacts_to_alerta(contacts, [])
                 rules_out = json.dumps(rules, sort_keys=True)
                 exp_out = json.dumps(exp_json, sort_keys=True)
+                print(json.dumps(rules,indent=4))
                 self.assertEqual(rules_out, exp_out)
 
 
@@ -216,11 +214,9 @@ class TestArgoAlertMethods(unittest.TestCase):
                 rules = argoalert.contacts_to_alerta(contacts, [])
                 rules_out = json.dumps(rules, sort_keys=True)
                 exp_out = json.dumps(exp_json, sort_keys=True)
-
                 self.assertEqual(rules_out, exp_out)
                
-
-     # Test site contacts to alerta transformation
+    # Test site contacts to alerta transformation
     def test_site_contacts_to_alerta(self):
         cfn = get_resource_path("./files/site_contacts_notify.json")
         rfn = get_resource_path("./files/site_rules.json")
@@ -320,7 +316,8 @@ class TestArgoAlertMethods(unittest.TestCase):
                     api_contacts_data = json.loads(api_contacts_clean)
 
                     contacts = argoalert.argo_web_api_to_contacts(endpoint_data,group_data,True)
-                    print(contacts)
+                    print(json.dumps(contacts, indent=4))
+                    print(json.dumps(api_contacts_data, indent=4))
                     self.assertEqual(contacts,api_contacts_data)
 
 
@@ -342,6 +339,28 @@ class TestArgoAlertMethods(unittest.TestCase):
                     gen_contacts_data = json.loads(gen_contacts_clean)
 
                     gen_contacts = argoalert.gen_endpoint_contacts_from_groups(group_data, endpoint_data)
+                    self.assertEqual(gen_contacts,gen_contacts_data)
+
+    def test_gen_group_contacts_filter(self):
+        endpoint_data_fn = get_resource_path("./files/argowebapi_endpoint_data.json")
+        group_data_fn = get_resource_path("./files/argowebapi_group_data.json")
+        gen_contacts_fn = get_resource_path("./files/gen_endpoint_contacts_filter.json")
+
+        with open(endpoint_data_fn, 'r') as endpoint_txt:
+            endpoint_clean = endpoint_txt.read().replace('\n', '')
+            endpoint_data = json.loads(endpoint_clean)
+
+            with open(group_data_fn, 'r') as group_txt:
+                group_clean = group_txt.read().replace('\n', '')
+                group_data = json.loads(group_clean)
+
+                with open(gen_contacts_fn, 'r') as gen_contacts_txt:
+                    gen_contacts_clean = gen_contacts_txt.read().replace('\n', '')
+                    gen_contacts_data = json.loads(gen_contacts_clean)
+
+                    gen_contacts = argoalert.gen_endpoint_contacts_from_groups(group_data, endpoint_data, "SERVICEGROUPS")
+                    print(json.dumps(gen_contacts, indent=4))
+                    print(json.dumps(gen_contacts_data, indent=4))
                     self.assertEqual(gen_contacts,gen_contacts_data)
 
 
