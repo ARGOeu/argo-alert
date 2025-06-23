@@ -27,7 +27,7 @@ class TestArgoAlertMethods(unittest.TestCase):
                   '"severity": "ok", "text": "[ DEVEL ] - Project SITEA is OK", "timeout": 20}'
 
         argo_json = json.loads(argo_str)
-        alerta_json = argoalert.transform(argo_json, "devel", "Project", 20,"ui.argo.foo", "Critical")
+        alerta_json = argoalert.transform(argo_json, "devel", "Project", 20,"ui.argo.foo", "Critical", "Service", "PROJECTS")
         alerta_str = json.dumps(alerta_json, sort_keys=True)
 
 
@@ -46,7 +46,7 @@ class TestArgoAlertMethods(unittest.TestCase):
                    '"severity": "ok", "text": "[ DEVEL ] - Service httpd is OK", "timeout": 32}'
 
         argo_json = json.loads(argo_str)
-        alerta_json = argoalert.transform(argo_json, "devel", "", 32, "ui.argo.foo", "Critical")
+        alerta_json = argoalert.transform(argo_json, "devel", "", 32, "ui.argo.foo", "Critical","","")
         alerta_str = json.dumps(alerta_json, sort_keys=True)
 
         self.assertEqual(alerta_str, exp_str)
@@ -61,12 +61,13 @@ class TestArgoAlertMethods(unittest.TestCase):
                   '"_metric_names": "", "_metric_statuses": "", "_mon_message": "", "_mon_summary": "", ' \
                   '"_repeat": "false", "_service": "httpd", "_status_egroup": "", "_status_endpoint": "", "_status_metric": "", "_status_service": "", "_ts_monitored": "2018-04-24T13:35:33Z", "_ts_processed": ""}, "environment": ' \
                   '"devel", "event": "endpoint_status", "resource": "httpd/webserver01", "service": [' \
-                  '"endpoint"], "severity": "ok", "text": "[ DEVEL ] - Endpoint webserver01/httpd is OK", "timeout": ' \
+                  '"endpoint"], "severity": "ok", "text": "[ DEVEL ] - Service instance webserver01 (httpd) is OK", "timeout": ' \
                   '122}'
 
         argo_json = json.loads(argo_str)
-        alerta_json = argoalert.transform(argo_json, "devel", "Site", 122,"ui.argo.foo","Critical")
+        alerta_json = argoalert.transform(argo_json, "devel", "Site", 122,"ui.argo.foo","Critical","Service instance","SITES")
         alerta_str = json.dumps(alerta_json, sort_keys=True)
+        print(alerta_str)
 
         self.assertEqual(alerta_str, exp_str)
 
@@ -82,7 +83,7 @@ class TestArgoAlertMethods(unittest.TestCase):
                   '"timeout": 42}'
 
         argo_json = json.loads(argo_str)
-        alerta_json = argoalert.transform(argo_json, "devel", "", 42,"ui.argo.foo","Critical")
+        alerta_json = argoalert.transform(argo_json, "devel", "", 42,"ui.argo.foo","Critical", "", "")
         alerta_str = json.dumps(alerta_json, sort_keys=True)
 
         self.assertEqual(alerta_str, exp_str)
