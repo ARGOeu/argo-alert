@@ -37,7 +37,7 @@ def date_end_of_day(dt):
     return dt.replace(hour=23, minute=59, second=59)
 
 
-def ui_group_url(ui_endpoint, report, timestamp, grouptype, group,  environment):
+def ui_group_url(ui_endpoint, report, timestamp, grouptype, group, environment, ui_path_group):
     """Generate an http url to a relevant argo web ui endpoint group timeline page
 
             Args:
@@ -54,10 +54,10 @@ def ui_group_url(ui_endpoint, report, timestamp, grouptype, group,  environment)
     start_date = date_only_string(date_days_ago(parse_timestamp(timestamp), 3))
     end_date = date_only_string(parse_timestamp(timestamp))
     return "https://{0}/{1}/report-status/{2}/{3}/{4}?start={5}&end={6}".format(
-        ui_endpoint, environment.lower(), report, grouptype.upper() + "S", group, start_date, end_date)
+        ui_endpoint, environment.lower(), report, ui_path_group, group, start_date, end_date)
 
 
-def ui_endpoint_url(ui_endpoint, report, timestamp, grouptype, group, service, hostname, environment):
+def ui_endpoint_url(ui_endpoint, report, timestamp, grouptype, group, service, hostname, environment, ui_path_group):
     """Generate an http url to a relevant argo web ui endpoint timeline page
 
             Args:
@@ -76,10 +76,10 @@ def ui_endpoint_url(ui_endpoint, report, timestamp, grouptype, group, service, h
     start_date = date_only_string(date_days_ago(parse_timestamp(timestamp), 3))
     end_date = date_only_string(parse_timestamp(timestamp))
     return "http://{0}/{1}/report-status/{2}/{3}/{4}/{5}/{6}?start={7}&end={8}".format(
-        ui_endpoint, environment.lower(), report, grouptype.upper() + "S", group, service, hostname,  start_date, end_date)
+        ui_endpoint, environment.lower(), report, ui_path_group, group, service, hostname,  start_date, end_date)
 
 
-def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
+def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report, endpoint_type, ui_path_group):
     """Transform an argo status event to an alerta alert
 
     Args:
@@ -181,7 +181,7 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
             environment.upper(), grouptype.capitalize(), group, status.upper())
         if ui_endpoint != "":
             attributes["_alert_url"] = ui_group_url(
-                ui_endpoint, report, ts_monitored, grouptype, group, environment)
+                ui_endpoint, report, ts_monitored, grouptype, group, environment, ui_path_group)
 
     elif etype == "service":
         alerta_service.append("service")
@@ -192,11 +192,11 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report):
     elif etype == "endpoint":
         alerta_service.append("endpoint")
         resource = service + "/" + hostname
-        text = "[ {0} ] - Endpoint {1}/{2} is {3}".format(
-            environment.upper(), hostname, service, status.upper())
+        text = "[ {0} ] - {4} {1} ({2}) is {3}".format(
+                environment.upper(), hostname, service, status.upper(), endpoint_type.capitalize())
         if ui_endpoint != "":
             attributes["_alert_url"] = ui_endpoint_url(
-                ui_endpoint, report, ts_monitored, grouptype, group, service, hostname, environment)
+                ui_endpoint, report, ts_monitored, grouptype, group, service, hostname, environment, ui_path_group)
 
     elif etype == "metric":
         alerta_service.append("metric")
@@ -235,7 +235,7 @@ def read_and_send(message, environment, alerta_url, alerta_token, options):
 
     try:
         alerta = transform(argo_event, environment,
-                           options["group_type"], options["timeout"], options["ui_endpoint"], options["report"])
+                           options["group_type"], options["timeout"], options["ui_endpoint"], options["report"], options["endpoint_type"], options["ui_path_group"])
     except KeyError as e:
         logging.warning("WRONG JSON SCHEMA: " + message.value)
         return
@@ -341,14 +341,14 @@ def gocdb_to_contacts(gocdb_xml, use_notif_flag, test_emails):
                 name = name_tags[0].firstChild.nodeValue
                 service = service_tags[0].firstChild.nodeValue
                 c["name"] = "\\/" + service + "\\/" + name
-            
+
             if test_emails is None:
                 c["emails"] = item.firstChild.nodeValue
             else:
                 c["emails"] = test_emails[indx % len(test_emails)]
                 c["original_email"] = item.firstChild.nodeValue
                 indx = indx + 1
-            
+
             contacts.append(c)
 
     return contacts
@@ -379,7 +379,7 @@ def gen_endpoint_contacts_from_groups(group_data, endpoint_data, group_filter=No
         if endpoint_group in group_index:
             item["notifications"] = group_index[endpoint_group]
             gen_endpoints.append(item)
-            
+
     return gen_endpoints
 
 def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_emails=None):
@@ -398,7 +398,7 @@ def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_em
     get_notif_always = not use_notif
 
 
-    
+
     contacts = []
     subgroup_types = {}
     # iterate over endpoints but also get subgroup types
@@ -416,7 +416,7 @@ def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_em
                     contact = test_emails[indx % len(test_emails)]
                 if contact != "":
                     contacts.append({"name": name, "emails": contact, "type": "endpoint"})
-    
+
     # consolidate rules with duplicate names (same endpoint belonging to multiple groups)
     contact_index = {}
     for contact in contacts:
@@ -432,7 +432,7 @@ def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_em
     for indx, group in enumerate(group_data):
         if "notifications" not in group:
             continue
-        
+
         if get_notif_always or ("enabled" in group["notifications"] and group["notifications"]["enabled"] == True):
             name = group["subgroup"]
             if name not in subgroup_types:
@@ -446,13 +446,13 @@ def argo_web_api_to_contacts(endpoint_data, group_data, use_notif=False, test_em
                 contact  = test_emails[indx % len(test_emails)]
             if contact != "":
                 contacts.append({"name":name, "emails":contact, "type":subgroup_type})
-                
+
     return contacts
 
 
 def get_argo_web_api_data(api_endpoint, access_key, verify=True, topology_type="endpoints"):
      # get endpoint topology
-    
+
     api_url = api_endpoint
     if topology_type == "endpoints":
         api_url = api_url + "/api/v2/topology/endpoints"
@@ -462,7 +462,7 @@ def get_argo_web_api_data(api_endpoint, access_key, verify=True, topology_type="
     logging.info("Requesting topology of {}  from argo-web-api: {}".format(topology_type,api_url))
     r = requests.get(api_url, headers={
                      'x-api-key': access_key, 'Accept': 'application/json'}, verify=verify)
-    
+
     if r.status_code == 200:
         logging.info("Argo-web-api topology data retrieved successfully")
         return json.loads(r.text)["data"]
@@ -528,15 +528,15 @@ def contacts_to_alerta(contacts, extras=None, environment=None):
             rule_fields.append(
                 {"field": "environment", "regex": "{0}".format(environment)})
         rule_contacts = re.split(";|,", c["emails"].replace(" ", ""))
-        
+
         if extras:
             rule_contacts.extend(extras)
         rule_exclude = True
 
         rule = {"name": rule_name, "fields": rule_fields,
                 "contacts": rule_contacts, "exclude": rule_exclude}
-        
-        
+
+
 
         # Check if contacts have original emails -- used during testing
         if "original_email" in c:

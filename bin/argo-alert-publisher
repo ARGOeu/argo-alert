@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/opt/alerta/bin/python
 
 from argparse import ArgumentParser
 from configparser import ConfigParser
@@ -19,7 +19,7 @@ def main(args=None):
     environment = parser.get("alerta", "environment")
     alerta_token = parser.get("alerta", "token")
     log_level = parser.get("logging", "level")
-    logging.basicConfig(level=log_level)
+    logging.basicConfig(level=log_level,format='%(asctime)s - %(levelname)s - %(message)s')
 
     # default alert timeout value
     alert_timeout = 3600
@@ -30,6 +30,15 @@ def main(args=None):
     if parser.has_option("alerta", "group-type"):
         group_type = parser.get("alerta", "group-type")
 
+    ui_path_group = "SITES"
+    if parser.has_option("alerta", "ui-path-group"):
+        ui_path_group = parser.get("alerta", "ui-path-group")
+
+
+    endpoint_type = "Endpoint"
+    if parser.has_option("alerta", "endpoint-type"):
+        endpoint_type = parser.get("alerta", "endpoint-type")
+
     report = "Critical"
     if parser.has_option("alerta", "report"):
         report = parser.get("alerta", "report")
@@ -39,8 +48,10 @@ def main(args=None):
         ui_endpoint = parser.get("alerta", "ui_endpoint")
 
     # create alert options dictionary
-    options = {"timeout": alert_timeout, "group_type": group_type,
-               "report": report, "ui_endpoint": ui_endpoint}
+    options = {"timeout": alert_timeout, "group_type": group_type, "endpoint_type": endpoint_type,
+            "report": report, "ui_endpoint": ui_endpoint, "ui_path_group":ui_path_group }
+
+
 
     argoalert.start_listening(environment, kafka_endpoint,
                               kafka_topic, alerta_endpoint, alerta_token, options)

@@ -107,6 +107,10 @@ extra-emails=alert01@mail.example.foo,alert02@mail.example.foo
 aleart-timeout = 3600
 # group type of the tenant's top level group used in alert generation and mail template
 group-type = Group
+# endpoint type could be set to the default: endpoint or to another type (for example: service instance)
+endpoint-type = endpoint
+# ui-path-group is used in argo ui's result to define the correct type of group in results path
+ui-path-group = SITES
 # report name used in argo-web-ui url construction
 report = Critical
 
