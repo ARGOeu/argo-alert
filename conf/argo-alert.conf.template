@@ -64,7 +64,17 @@ extra-emails=alert01@mail.example.foo,alert02@mail.example.foo
 alert-timeout = 3600
 # group type of the tenant's top level group used in alert generation and mail template
 group-type = Group
+endpoint-type = endpoint
 report = Critical
+ui-path-group = SITES
+# generate endpoint notifications based on groups
+gen-endpoint-contacts-from-groups = False
+# Optional: when generating endpoint contacts from groups filter by group type
+# gen-endpoint-contacts-group-filter = SITES 
+# don't generate group contacts
+skip-group-contacts = False
+
+
 
 [logging]
 # loggin level

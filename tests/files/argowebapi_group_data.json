@@ -46,6 +46,22 @@
             "monitored": "1",
             "scope": "Top"
         }
+    },
+    {
+        "date": "2022-30-06",
+        "group": "TOP",
+        "type": "PROJECT",
+        "subgroup": "SG_X",
+        "notifications": {
+            "contacts": [
+                "top_contact8@example.foo"
+            ],
+            "enabled": true
+        },
+        "tags": {
+            "monitored": "1",
+            "scope": "Top"
+        }
     }
    
 ]

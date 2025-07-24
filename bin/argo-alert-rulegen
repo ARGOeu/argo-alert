@@ -41,6 +41,20 @@ def main(args=None):
         if args.test_emails is not None:
             test_emails = args.test_emails.split(',')
 
+        gen_endpoint_contacts = False
+        gen_endpoint_contacts_group_filter = None
+        skip_group_contacts = False
+        # Check if configuration has endpoint contacts from groups
+        if parser.has_option("alerta", "gen-endpoint-contacts-from-groups"):
+            gen_endpoint_contacts = parser.getboolean("alerta", "gen-endpoint-contacts-from-groups")
+        if parser.has_option("alerta", "gen-endpoint-contacts-group-filter"):
+            gen_endpoint_contacts_group_filter = parser.get("alerta", "gen-endpoint-contacts-group-filter")
+        
+        # Check if configuration has group contacts for generations
+        if parser.has_option("alerta", "skip-group-contacts"):
+            skip_group_contacts = parser.getboolean("alerta", "skip-group-contacts")     
+                   
+
         # get endpoint topology
         endpoint_topology_data = argoalert.get_argo_web_api_data(
             api_endpoint, api_access_key, api_verify, "endpoints")
@@ -48,6 +62,15 @@ def main(args=None):
         # get group topology
         group_topology_data = argoalert.get_argo_web_api_data(
             api_endpoint, api_access_key, api_verify, "groups")
+        
+        # check if configuration dictates to generate endpoint contacts based on group contacts
+        if gen_endpoint_contacts:
+            endpoint_topology_data = argoalert.gen_endpoint_contacts_from_groups(
+                group_topology_data, endpoint_topology_data, gen_endpoint_contacts_group_filter
+            )
+
+        if skip_group_contacts:
+            group_topology_data = []
 
         contacts = argoalert.argo_web_api_to_contacts(
             endpoint_topology_data, group_topology_data, api_use_notifications_flag, test_emails)
