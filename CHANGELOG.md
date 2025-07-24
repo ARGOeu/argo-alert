@@ -2,7 +2,16 @@
 
 All notable changes in argo-alert project are documented here
 
-## 1.0.0 - (2023-02-02)
+## [v2.0.0](https://github.com/FC4E-CAT/fc4e-cat-ui/releases/tag/v2.0.0) - (2025-07-24)
+
+### Added: 
+- ARGO-5020 Add endpoint-type and ui-path-group parameters ([#49](https://github.com/ARGOeu/argo-alert/pull/49))
+- ARGO-4247 Handle endpoints belonging to multiple groups - filter by group type ([#48](https://github.com/ARGOeu/argo-alert/pull/48))
+- ARGO-4229 Add the ability to skip group contact generation. ([#47](https://github.com/ARGOeu/argo-alert/pull/47))
+- ARGO-4216 Generate endpoint notification rules based on group contacts ([#46](https://github.com/ARGOeu/argo-alert/pull/46))
+
+
+## [v1.0.0](https://github.com/ARGOeu/argo-alert/releases/tag/v.1.0.0) - (2023-02-02)
 
 ### Added:
 - ARGO-3901 Retrieve contacts from argo-web-api
@@ -12,7 +21,7 @@ All notable changes in argo-alert project are documented here
 - ARGO-2856 Update notifications to read contact info from json topology
 
 
-## 0.2.1 - (2020-12-16)
+## [v0.2.1](https://github.com/ARGOeu/argo-alert/releases/tag/V0.2.1) - (2020-12-16)
 
 ### Added:
 - ARGO-2079 Add original contacts feature when sending to testing emails
@@ -24,7 +33,7 @@ All notable changes in argo-alert project are documented here
 - ARGO-2027 Split gocdb contain email string into individual items
 
 
-## 0.2.0 - (2019-11-06)
+## [v0.2.0](https://github.com/ARGOeu/argo-alert/releases/tag/V0.2.1) - (2019-11-06)
 
 ### Added:
 - ARGO-2027 Split gocdb contain email string into individual items
@@ -36,13 +45,13 @@ All notable changes in argo-alert project are documented here
 - ARGO-1793 Fix ui_urls in alert mails to point correctly to the new web_ui
 
 
-## 0.1.2 - (2018-11-09)
+## [v0.1.2](https://github.com/ARGOeu/argo-alert/releases/tag/v0.1-2) - (2018-11-09)
 
 ### Fixed:
 - ARGO-1464 Update requests dep to 2.20
 
 
-## 0.1.1 - (2018-02-27) 
+## [v0.1.1](https://github.com/ARGOeu/argo-alert/releases/tag/v0.1-1) - (2018-02-27) 
 
 ### Added:
 - ARGO-933 Implement argo-alert publisher of argo-streaming events to alerta
