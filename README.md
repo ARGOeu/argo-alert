@@ -1,7 +1,7 @@
 argo-alert
 ===============================
 
-version number: 1.0.0
+version number: 2.0.0
 author: GRNET
 
 Overview
