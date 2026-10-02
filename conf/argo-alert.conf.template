@@ -67,6 +67,7 @@ group-type = Group
 endpoint-type = endpoint
 report = Critical
 ui-path-group = SITES
+ui-version = old
 # generate endpoint notifications based on groups
 gen-endpoint-contacts-from-groups = False
 # Optional: when generating endpoint contacts from groups filter by group type
