@@ -47,9 +47,18 @@ def main(args=None):
     if parser.has_option("alerta", "ui_endpoint"):
         ui_endpoint = parser.get("alerta", "ui_endpoint")
 
+    # switch between old and new ui
+    ui_version = "old"
+    if parser.has_option("alerta", "ui-version"):
+        ui_version = parser.get("alerta", "ui-version").strip().lower()
+    if ui_version not in ("old", "new"):
+        raise ValueError(
+            "alerta.ui-version must be 'old' or 'new', got: " + ui_version)
+
     # create alert options dictionary
     options = {"timeout": alert_timeout, "group_type": group_type, "endpoint_type": endpoint_type,
-            "report": report, "ui_endpoint": ui_endpoint, "ui_path_group":ui_path_group }
+            "report": report, "ui_endpoint": ui_endpoint, "ui_path_group": ui_path_group,
+            "ui_version": ui_version}
 
 
 
@@ -65,6 +74,4 @@ if __name__ == "__main__":
         "-c", "--config", help="config", dest="config", metavar="string",
         required="TRUE")
 
-    # Parse the command line arguments accordingly and introduce them to
-    # main...
     sys.exit(main(arg_parser.parse_args()))

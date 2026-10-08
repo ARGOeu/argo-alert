@@ -23,7 +23,7 @@ pipeline {
                     pipenv run coverage xml
                     pipenv run py.test ./ --junitxml=./junit.xml
                 '''
-                cobertura coberturaReportFile: '**/coverage.xml'
+                
             }
         }
     }

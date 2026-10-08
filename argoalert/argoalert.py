@@ -7,6 +7,7 @@ import logging
 from defusedxml.minidom import parseString
 from datetime import datetime
 from datetime import timedelta
+from urllib.parse import urlencode, quote
 
 
 def parse_timestamp(timestamp):
@@ -38,7 +39,7 @@ def date_end_of_day(dt):
 
 
 def ui_group_url(ui_endpoint, report, timestamp, grouptype, group, environment, ui_path_group):
-    """Generate an http url to a relevant argo web ui endpoint group timeline page
+    """Generate an http url to a relevant argo web ui endpoint group timeline page (old ui)
 
             Args:
                 ui_endpoint: str. Endpoint of designated argo web ui
@@ -58,7 +59,7 @@ def ui_group_url(ui_endpoint, report, timestamp, grouptype, group, environment, 
 
 
 def ui_endpoint_url(ui_endpoint, report, timestamp, grouptype, group, service, hostname, environment, ui_path_group):
-    """Generate an http url to a relevant argo web ui endpoint timeline page
+    """Generate an http url to a relevant argo web ui endpoint timeline page (old ui)
 
             Args:
                 ui_endpoint: str. Endpoint of designated argo web ui
@@ -79,7 +80,75 @@ def ui_endpoint_url(ui_endpoint, report, timestamp, grouptype, group, service, h
         ui_endpoint, environment.lower(), report, ui_path_group, group, service, hostname,  start_date, end_date)
 
 
-def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report, endpoint_type, ui_path_group):
+def ui_metric_url(ui_endpoint, tenant, report, group, service, endpoint, metric, timestamp):
+    """Generate a public argo web ui metric status url (new ui)
+
+            Args:
+                ui_endpoint: str. Endpoint (host) of the argo web ui
+                tenant: str. Tenant name used in the url path
+                report: str. Report name
+                group: str. Endpoint group name
+                service: str. Service type
+                endpoint: str. Endpoint hostname
+                metric: str. Metric name
+                timestamp: str. Zulu timestamp of the alert (ts_monitored)
+
+            Return:
+                str: http url
+    """
+    query = urlencode([
+        ("report", report),
+        ("group", group),
+        ("serviceType", service),
+        ("endpoint", endpoint),
+        ("metric", metric),
+        ("ts", timestamp),
+    ], quote_via=quote)
+    return "https://{0}/public/tenants/{1}/status?{2}".format(
+        ui_endpoint, tenant, query)
+
+
+def build_alert_url(ui_version, etype, argo_event, ui_endpoint, environment,
+                    report, grouptype, ui_path_group):
+    """Build the alert url for the selected ui version
+
+    Args:
+        ui_version: str. "old" (group/endpoint timeline pages) or "new" (public metric status page)
+        etype: str. event type (endpoint_group / endpoint)
+        argo_event: obj. Json representation of an argo status event
+        ui_endpoint: str. Endpoint of designated argo web ui
+        environment: str. the alerting environment named after the tenant
+        report: str. Report name
+        grouptype: str. type of endpoint group based on report topology
+        ui_path_group: str. group path element used by the old ui
+
+    Return:
+        str: http url, or None if the event type has no link
+    """
+    group = argo_event["endpoint_group"]
+    service = argo_event["service"]
+    hostname = argo_event["hostname"]
+    metric = argo_event["metric"]
+    ts_monitored = argo_event["ts_monitored"]
+
+    if ui_version == "new":
+        # tenant name in the new ui is exactly the alert environment
+        return ui_metric_url(
+            ui_endpoint, environment, report,
+            group, service, hostname, metric, ts_monitored)
+
+    # old ui behaviour, unchanged
+    if etype == "endpoint_group":
+        return ui_group_url(ui_endpoint, report, ts_monitored, grouptype,
+                            group, environment, ui_path_group)
+    if etype == "endpoint":
+        return ui_endpoint_url(ui_endpoint, report, ts_monitored, grouptype,
+                               group, service, hostname, environment, ui_path_group)
+    return None
+
+
+def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report,
+              endpoint_type, ui_path_group, ui_version="old"):
     """Transform an argo status event to an alerta alert
 
     Args:
@@ -87,6 +156,7 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report, 
         environment: str. Alerta enviroment parameter to build the alert
         grouptype: str. name of top-level grouping type used in this tenant
         timeout: int. Alert timeout in seconds
+        ui_version: str. "old" or "new" argo web ui url scheme. Default is "old"
 
     Return:
         obj: Json representation of an alerta alert
@@ -180,8 +250,9 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report, 
         text = "[ {0} ] - {1} {2} is {3}".format(
             environment.upper(), grouptype.capitalize(), group, status.upper())
         if ui_endpoint != "":
-            attributes["_alert_url"] = ui_group_url(
-                ui_endpoint, report, ts_monitored, grouptype, group, environment, ui_path_group)
+            attributes["_alert_url"] = build_alert_url(
+                ui_version, etype, argo_event, ui_endpoint, environment,
+                report, grouptype, ui_path_group)
 
     elif etype == "service":
         alerta_service.append("service")
@@ -195,8 +266,9 @@ def transform(argo_event, environment, grouptype, timeout, ui_endpoint, report, 
         text = "[ {0} ] - {4} {1} ({2}) is {3}".format(
                 environment.upper(), hostname, service, status.upper(), endpoint_type.capitalize())
         if ui_endpoint != "":
-            attributes["_alert_url"] = ui_endpoint_url(
-                ui_endpoint, report, ts_monitored, grouptype, group, service, hostname, environment, ui_path_group)
+            attributes["_alert_url"] = build_alert_url(
+                ui_version, etype, argo_event, ui_endpoint, environment,
+                report, grouptype, ui_path_group)
 
     elif etype == "metric":
         alerta_service.append("metric")
@@ -219,7 +291,8 @@ def read_and_send(message, environment, alerta_url, alerta_token, options):
         environment: str. Alerta environment to be used (e.g. 'Devel')
         alerta_url: str. Alerta api endpoint
         alerta_token: str. Alerta api access token
-        options: dict. Various alert options such as timeout, group type and report name (used in ui links)
+        options: dict. Various alert options such as timeout, group type, report name (used in ui links)
+                 and ui_version ("old" or "new", default "old")
 
     """
     try:
@@ -235,7 +308,9 @@ def read_and_send(message, environment, alerta_url, alerta_token, options):
 
     try:
         alerta = transform(argo_event, environment,
-                           options["group_type"], options["timeout"], options["ui_endpoint"], options["report"], options["endpoint_type"], options["ui_path_group"])
+                           options["group_type"], options["timeout"], options["ui_endpoint"],
+                           options["report"], options["endpoint_type"], options["ui_path_group"],
+                           options.get("ui_version", "old"))
     except KeyError as e:
         logging.warning("WRONG JSON SCHEMA: " + message.value)
         return
