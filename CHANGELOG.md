@@ -2,6 +2,11 @@
 
 All notable changes in argo-alert project are documented here
 
+## [v2.1.0](https://github.com/FC4E-CAT/fc4e-cat-ui/releases/tag/v2.1.0) - (2026-10-21)
+
+### Changed: 
+- ARGO-5904 Update notifications for the new ui ([#55](https://github.com/ARGOeu/argo-alert/pull/55))
+
 ## [v2.0.0](https://github.com/FC4E-CAT/fc4e-cat-ui/releases/tag/v2.0.0) - (2025-07-24)
 
 ### Added: 
